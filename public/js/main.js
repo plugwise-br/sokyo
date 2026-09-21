@@ -123,9 +123,12 @@ function setLoading(on) {
   document.getElementById("loading-bar").classList.toggle("show", loadingDepth > 0);
 }
 
-export async function render() {
-  setLoading(true);
-  try { await renderInner(); } finally { setLoading(false); }
+// silent=true (usado pelo polling automatico em segundo plano) nao acende a
+// barra de carregamento - ela e so pra navegacao feita pela propria pessoa,
+// senao pisca no topo da tela a cada ciclo mesmo sem nada mudar na tela.
+export async function render(silent) {
+  if (!silent) setLoading(true);
+  try { await renderInner(); } finally { if (!silent) setLoading(false); }
 }
 
 async function renderInner() {
@@ -168,8 +171,8 @@ function userIsTyping() {
 }
 
 loadBranding().finally(render);
-setInterval(() => { if (!state.pinModalOpen && !userIsTyping()) render(); }, 6000);
-window.addEventListener("focus", () => { if (!state.pinModalOpen && !userIsTyping()) render(); });
+setInterval(() => { if (!state.pinModalOpen && !userIsTyping()) render(true); }, 6000);
+window.addEventListener("focus", () => { if (!state.pinModalOpen && !userIsTyping()) render(true); });
 
 window.addEventListener("online", () => toast("Conexão restabelecida ✓"));
 window.addEventListener("offline", () => toast("Sem conexão com a internet — algumas ações podem falhar."));
