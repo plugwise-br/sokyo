@@ -4,14 +4,16 @@ Sistema de gamificação de responsabilidades para crianças. Produto Plugwise, 
 
 > "Pequenas missões. Grandes conquistas."
 
-## Status atual (Fase 4 concluída)
+## Status atual (Fase 5 concluída — MVP completo)
 
 - ✅ **Fase 0 — Auditoria** (`PROJECT_AUDIT.md`)
 - ✅ **Fase 1 — Arquitetura** (`PRODUCT_ARCHITECTURE.md`)
 - ✅ **Fase 2 — Banco**: schema SQLite (`src/db/schema.sql`), com seed inicial (família, Arthur, categorias, tarefas, recompensas, metas, conquistas).
 - ✅ **Fase 3 — Core game**: crianças, tarefas (rotina/bônus/épica), conclusão, aprovação, XP e moedas como **transações auditáveis** (nunca um incremento direto de saldo), streak, níveis, histórico/diário. Coberto por 9 testes automatizados (`npm test`), todos passando.
-- ✅ **Fase 4 — Pais e app da criança**: seleção de perfil sem senha, app da criança (Hoje / Personagem / Recompensas / Metas / Diário, incluindo checklist de missão épica), painel dos pais atrás de PIN (dashboard, CRUD de missões e recompensas, fila de aprovação, metas por filho, mesada com os dois modelos, troca de PIN). Validado manualmente end-to-end com Playwright, além dos 9 testes automatizados.
-- ⏳ **Fase 5 — Polimento**: PWA (manifest/ícones/instalação), estados vazios/loading mais ricos, animações leves, responsividade fina, offline básico.
+- ✅ **Fase 4 — Pais e app da criança**: seleção de perfil sem senha, app da criança (Hoje / Personagem / Recompensas / Metas / Diário, incluindo checklist de missão épica), painel dos pais atrás de PIN (dashboard, CRUD de missões e recompensas, fila de aprovação, metas por filho, mesada com os dois modelos, troca de PIN).
+- ✅ **Fase 5 — Polimento**: PWA instalável (manifest + ícones + service worker que cacheia só o shell, nunca a API), toast de conquista desbloqueada e subida de nível, barra de carregamento, auto-refresh que não atrapalha quem está digitando, avisos de conexão, animações leves respeitando `prefers-reduced-motion`.
+
+Validado end-to-end com Playwright (mobile 390px e tablet 820px) em cada fase, além dos 9 testes automatizados de backend. Pronto para uso real da família — falta só o deploy na VPS (ver seção abaixo).
 
 A interface visual da versão anterior do protótipo está preservada em `public/legacy-reference.html` — a nova interface (`public/js/`, `public/css/`) manteve a mesma identidade (paleta verde/dourado, Baloo 2 + Nunito, cards arredondados) sobre o modelo de dados novo.
 
