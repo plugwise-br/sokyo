@@ -61,7 +61,10 @@ img{max-width:100%}
 .mode-toggle, .link-btn{
   background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.4); color:var(--primary-ink);
   border-radius:999px; padding:7px 13px; font-family:'Nunito'; font-weight:800; font-size:.78rem; cursor:pointer;
+  display:inline-flex; align-items:center; gap:6px;
 }
+.mode-icon{width:20px; height:20px; border-radius:50%; object-fit:cover; flex:none}
+.mode-icon-lg{width:100%; height:100%; border-radius:50%; object-fit:cover}
 .xp-row{margin-top:14px; position:relative; z-index:1}
 .xp-track{height:10px; border-radius:999px; background:rgba(255,255,255,.22); overflow:hidden}
 .xp-fill{height:100%; background:var(--gold); border-radius:999px; transition:width .4s ease}

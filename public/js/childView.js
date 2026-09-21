@@ -16,7 +16,7 @@ function headerHtml(child, ctx) {
           <div class="hero-sub">Nível ${level.level} · ${esc(level.name)}</div>
         </div>
       </div>
-      <button class="mode-toggle" id="btn-parent">👪 Modo pais</button>
+      <button class="mode-toggle" id="btn-parent"><img class="mode-icon" src="/icons/mode-parent.png" alt=""> Modo pais</button>
     </div>
     <div class="xp-row">
       <div class="xp-track"><div class="xp-fill" style="width:${xpPct}%"></div></div>

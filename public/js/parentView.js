@@ -7,12 +7,12 @@ const TABS = [["dashboard", "Painel"], ["tarefas", "Missões"], ["aprovacao", "A
 const AVATAR_OPTIONS = ["🦸", "🦸‍♀️", "🧑‍🚀", "🥷", "🧙", "🧜‍♀️", "🦹", "🧑‍🎤", "🐱", "🐶", "🐼", "🦊", "🦁", "🐯", "🐨", "🐸", "🦄", "🐲", "⚽", "🎮", "🚀", "🌟", "🎨", "📚"];
 let openAvatarPicker = null;
 
-function headerHtml() {
+function headerHtml(firstChildAvatar) {
   const b = getBranding();
   return `<div class="topbar">
     <div class="topbar-row">
-      <div class="hero"><div class="avatar">👪</div><div><div class="hero-name">Painel dos Pais</div><div class="hero-sub">${esc(b ? b.app_name : "Sokyo")}</div></div></div>
-      <button class="mode-toggle" id="btn-child">🧒 Modo criança</button>
+      <div class="hero"><div class="avatar"><img class="mode-icon-lg" src="/icons/mode-parent.png" alt=""></div><div><div class="hero-name">Painel dos Pais</div><div class="hero-sub">${esc(b ? b.app_name : "Sokyo")}</div></div></div>
+      <button class="mode-toggle" id="btn-child">${firstChildAvatar || "🧒"} Modo criança</button>
     </div>
   </div>`;
 }
@@ -271,7 +271,10 @@ const state = { metasChild: null, mesadaChild: null };
 export async function renderParentApp(root, ctx) {
   const { tab, setTab, goChild, toast } = ctx;
   let bodyHtml;
+  let firstChildAvatar = "";
   try {
+    const children = await api.children().catch(() => []);
+    firstChildAvatar = children[0] ? children[0].avatar : "";
     if (tab === "dashboard") bodyHtml = await tabDashboard();
     else if (tab === "tarefas") bodyHtml = await tabTarefas();
     else if (tab === "aprovacao") bodyHtml = await tabAprovacao();
@@ -284,7 +287,7 @@ export async function renderParentApp(root, ctx) {
   }
 
   const b = getBranding();
-  root.innerHTML = headerHtml() + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Painel dos pais · ${esc(b ? b.app_name : "Sokyo")}</p>`;
+  root.innerHTML = headerHtml(firstChildAvatar) + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Painel dos pais · ${esc(b ? b.app_name : "Sokyo")}</p>`;
   document.getElementById("btn-child").addEventListener("click", goChild);
   root.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => setTab(el.dataset.tab)));
 
