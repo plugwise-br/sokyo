@@ -83,8 +83,10 @@ function renderPinModal() {
       render();
     } catch (err) {
       btn.disabled = false;
-      document.getElementById("pin-error").textContent = err.code === "too_many_attempts"
-        ? "Muitas tentativas, aguarde alguns minutos." : "PIN incorreto, tente de novo.";
+      let msg = "PIN incorreto, tente de novo.";
+      if (err.code === "too_many_attempts") msg = "Muitas tentativas, aguarde alguns minutos.";
+      else if (err.code !== "invalid_pin") msg = "Não foi possível conectar ao servidor. Tente novamente em instantes.";
+      document.getElementById("pin-error").textContent = msg;
     }
   };
   document.getElementById("pin-submit").addEventListener("click", submit);

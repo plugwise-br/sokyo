@@ -51,8 +51,10 @@ async function renderLogin() {
       render();
     } catch (err) {
       btn.disabled = false;
-      const msg = err.code === "admin_disabled" ? "Área de admin desativada (defina ADMIN_PIN no servidor)."
-        : err.code === "too_many_attempts" ? "Muitas tentativas, aguarde." : "PIN incorreto.";
+      let msg = "PIN incorreto.";
+      if (err.code === "admin_disabled") msg = "Área de admin desativada (defina ADMIN_PIN no servidor).";
+      else if (err.code === "too_many_attempts") msg = "Muitas tentativas, aguarde.";
+      else if (err.code !== "invalid_pin") msg = "Não foi possível conectar ao servidor. Tente novamente em instantes.";
       document.getElementById("admin-error").textContent = msg;
     }
   };
