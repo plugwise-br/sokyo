@@ -20,12 +20,15 @@ function create(familyId, { name, avatar }) {
   return get(childId);
 }
 
+const VALID_GENDERS = ["male", "female"];
+
 function update(childId, body) {
   const current = get(childId);
   if (!current) return null;
   const name = body.name !== undefined && body.name.trim() ? body.name.trim() : current.name;
   const avatar = body.avatar !== undefined && body.avatar.trim() ? body.avatar.trim() : current.avatar;
-  db.prepare("UPDATE children SET name=?, avatar=? WHERE id=?").run(name, avatar, childId);
+  const gender = VALID_GENDERS.includes(body.gender) ? body.gender : current.gender;
+  db.prepare("UPDATE children SET name=?, avatar=?, gender=? WHERE id=?").run(name, avatar, gender, childId);
   return get(childId);
 }
 

@@ -117,7 +117,8 @@ img{max-width:100%}
 
 .ach-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px}
 .ach-card{background:var(--surface-2); border-radius:14px; padding:12px; text-align:center; font-size:.78rem; font-weight:800}
-.ach-card .ic{font-size:1.8rem; display:block; margin-bottom:4px}
+.ach-card span.ic{font-size:1.8rem; display:block; margin-bottom:4px}
+.ach-card img.ic{width:72px; height:72px; object-fit:contain; display:block; margin:0 auto 4px}
 .ach-card.locked{opacity:.4; filter:grayscale(1)}
 
 .empty{padding:22px 6px; text-align:center; color:var(--ink-dim); font-size:.88rem}

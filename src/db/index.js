@@ -17,6 +17,19 @@ db.exec("PRAGMA foreign_keys = ON");
 const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
 db.exec(schema);
 
+// Migracao idempotente: CREATE TABLE IF NOT EXISTS nao adiciona coluna nova
+// a uma tabela que ja existia antes dela ser criada (banco ja rodando na
+// VPS) - entao colunas novas entram aqui, so quando ainda nao existem.
+function ensureColumn(table, column, ddl) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name);
+  if (!cols.includes(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+}
+ensureColumn("children", "gender", "gender TEXT");
+ensureColumn("achievements", "name_boy", "name_boy TEXT");
+ensureColumn("achievements", "name_girl", "name_girl TEXT");
+ensureColumn("achievements", "icon_boy", "icon_boy TEXT");
+ensureColumn("achievements", "icon_girl", "icon_girl TEXT");
+
 function withTransaction(fn) {
   db.exec("BEGIN");
   try {
@@ -31,6 +44,35 @@ function withTransaction(fn) {
 
 function hashPin(pin) {
   return crypto.createHash("sha256").update(String(pin)).digest("hex");
+}
+
+// Definicao das 4 conquistas padrao - nome/icone no masculino e feminino.
+// icon_boy/icon_girl (imagens customizadas) sao preenchidos depois, quando
+// os arquivos chegam - ate la cai no fallback neutro (icon, emoji).
+const ACHIEVEMENT_DEFS = [
+  { key: "guardiao_manha", name: "Guardião da Manhã", nameBoy: "Guardião da Manhã", nameGirl: "Guardiã da Manhã",
+    description: "7 dias seguidos cumprindo a rotina", icon: "🌅", ruleType: "streak_at_least", ruleValue: 7, ruleCategory: null },
+  { key: "super_organizado", name: "Super Organizado", nameBoy: "Super Organizado", nameGirl: "Super Organizada",
+    description: "10 tarefas de autonomia concluídas", icon: "🗂️", ruleType: "completions_in_category_at_least", ruleValue: 10, ruleCategory: "autonomia" },
+  { key: "ajudante_familia", name: "Ajudante da Família", nameBoy: "Ajudante da Família", nameGirl: "Ajudante da Família",
+    description: "20 missões de família concluídas", icon: "🤝", ruleType: "completions_in_category_at_least", ruleValue: 20, ruleCategory: "familia" },
+  { key: "mestre_autonomia", name: "Mestre da Autonomia", nameBoy: "Mestre da Autonomia", nameGirl: "Mestra da Autonomia",
+    description: "100 tarefas concluídas no total", icon: "🎓", ruleType: "total_completions_at_least", ruleValue: 100, ruleCategory: null }
+];
+
+// Migracao (banco ja existente): preenche nome/icone por genero nas 4
+// conquistas padrao, so onde ainda estiver vazio - nunca sobrescreve uma
+// edicao que o admin ja tenha feito pelo painel.
+function migrateAchievementGenderFields() {
+  const rows = db.prepare("SELECT id, name, name_boy, name_girl FROM achievements").all();
+  ACHIEVEMENT_DEFS.forEach((def) => {
+    const row = rows.find((r) => r.name === def.name);
+    if (!row) return;
+    if (!row.name_boy || !row.name_girl) {
+      db.prepare("UPDATE achievements SET name_boy=COALESCE(name_boy,?), name_girl=COALESCE(name_girl,?) WHERE id=?")
+        .run(def.nameBoy, def.nameGirl, row.id);
+    }
+  });
 }
 
 // ---------- seed (só roda se o banco estiver vazio) ----------
@@ -133,13 +175,13 @@ function seedIfEmpty() {
     insGoal.run(id(), familyId, childId, "Passeio no parque", "🎡", 250, now);
 
     const insAch = db.prepare(
-      `INSERT INTO achievements (id, family_id, name, description, icon, rule_type, rule_value, rule_category_id)
-       VALUES (?,?,?,?,?,?,?,?)`
+      `INSERT INTO achievements (id, family_id, name, description, icon, name_boy, name_girl, rule_type, rule_value, rule_category_id)
+       VALUES (?,?,?,?,?,?,?,?,?,?)`
     );
-    insAch.run(id(), familyId, "Guardião da Manhã", "7 dias seguidos cumprindo a rotina", "🌅", "streak_at_least", 7, null);
-    insAch.run(id(), familyId, "Super Organizado", "10 tarefas de autonomia concluídas", "🗂️", "completions_in_category_at_least", 10, catIds.autonomia);
-    insAch.run(id(), familyId, "Ajudante da Família", "20 missões de família concluídas", "🤝", "completions_in_category_at_least", 20, catIds.familia);
-    insAch.run(id(), familyId, "Mestre da Autonomia", "100 tarefas concluídas no total", "🎓", "total_completions_at_least", 100, null);
+    ACHIEVEMENT_DEFS.forEach((a) => {
+      insAch.run(id(), familyId, a.name, a.description, a.icon, a.nameBoy, a.nameGirl, a.ruleType, a.ruleValue,
+        a.ruleCategory ? catIds[a.ruleCategory] : null);
+    });
   });
 
   return familyId;
@@ -170,5 +212,6 @@ function seedBrandingIfEmpty() {
 
 const familyId = seedIfEmpty();
 seedBrandingIfEmpty();
+migrateAchievementGenderFields();
 
 module.exports = { db, withTransaction, hashPin, familyId, DB_PATH, DATA_DIR };

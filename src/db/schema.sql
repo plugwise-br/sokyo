@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS children (
   family_id TEXT NOT NULL REFERENCES families(id),
   name TEXT NOT NULL,
   avatar TEXT NOT NULL DEFAULT '🦸',
+  gender TEXT, -- 'male' | 'female' | NULL (nao definido ainda)
   created_at TEXT NOT NULL
 );
 
@@ -142,7 +143,9 @@ CREATE TABLE IF NOT EXISTS achievements (
   family_id TEXT NOT NULL REFERENCES families(id),
   name TEXT NOT NULL,
   description TEXT,
-  icon TEXT NOT NULL DEFAULT '🏆',
+  icon TEXT NOT NULL DEFAULT '🏆', -- usado quando a crianca nao tem genero definido ainda
+  name_boy TEXT, name_girl TEXT,   -- nome no masculino/feminino (ex: "Guardiao"/"Guardia"), opcional
+  icon_boy TEXT, icon_girl TEXT,   -- caminho de imagem por genero, opcional (sobrepoe o icon acima)
   rule_type TEXT NOT NULL,
   rule_value INTEGER NOT NULL,
   rule_category_id TEXT

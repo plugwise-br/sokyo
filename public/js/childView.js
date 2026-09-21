@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { esc, fmtBRL, DOW } from "./format.js";
+import { esc, fmtBRL, DOW, achievementDisplay, iconHtml } from "./format.js";
 
 const TABS = [["hoje", "Hoje"], ["personagem", "Personagem"], ["recompensas", "Recompensas"], ["metas", "Metas"], ["diario", "Diário"]];
 
@@ -84,7 +84,8 @@ async function tabPersonagem(child) {
   html += `<div class="card"><div class="section-head">🏆 Conquistas</div><div class="ach-grid">`;
   ach.all.forEach((a) => {
     const unlocked = ach.unlocked.some((u) => u.id === a.id);
-    html += `<div class="ach-card ${unlocked ? "" : "locked"}"><span class="ic">${a.icon}</span>${esc(a.name)}</div>`;
+    const d = achievementDisplay(a, child.gender);
+    html += `<div class="ach-card ${unlocked ? "" : "locked"}">${iconHtml(d.icon, "ic")}${esc(d.name)}</div>`;
   });
   html += `</div></div>`;
   return html;

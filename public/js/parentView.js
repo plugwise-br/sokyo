@@ -40,6 +40,10 @@ async function tabDashboard() {
         <button class="avatar-big" data-action="toggle-avatar-picker" data-id="${c.id}" title="Trocar avatar">${c.avatar}</button>
         <div class="field"><label>Nome</label><input type="text" data-field="name" value="${esc(c.name)}"></div>
       </div>
+      <div class="row" style="margin:2px 0 12px">
+        <button class="child-chip ${c.gender === "male" ? "active" : ""}" data-action="pick-gender" data-id="${c.id}" data-gender="male">Menino</button>
+        <button class="child-chip ${c.gender === "female" ? "active" : ""}" data-action="pick-gender" data-id="${c.id}" data-gender="female">Menina</button>
+      </div>
       <div class="avatar-picker ${pickerOpen ? "" : "hidden"}" id="avatar-picker-${c.id}">
         ${AVATAR_OPTIONS.map((a) => `<button class="avatar-option ${a === c.avatar ? "selected" : ""}" data-action="pick-avatar" data-id="${c.id}" data-avatar="${a}">${a}</button>`).join("")}
       </div>
@@ -321,6 +325,13 @@ function bindDashboardTab(root, ctx, tab) {
       await api.updateChild(btn.dataset.id, { avatar: btn.dataset.avatar });
       openAvatarPicker = null;
       ctx.toast("Avatar atualizado.");
+      ctx.setTab(tab);
+    } catch (e) { ctx.toast("Não foi possível salvar."); }
+  }));
+  root.querySelectorAll('[data-action="pick-gender"]').forEach((btn) => btn.addEventListener("click", async () => {
+    try {
+      await api.updateChild(btn.dataset.id, { gender: btn.dataset.gender });
+      ctx.toast("Salvo.");
       ctx.setTab(tab);
     } catch (e) { ctx.toast("Não foi possível salvar."); }
   }));
