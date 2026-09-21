@@ -69,5 +69,10 @@ export const api = {
   updateAllowanceSettings: (body) => request("/allowance/settings", { method: "PUT", body }),
   payWeek: (childId) => request(`/children/${childId}/allowance/pay-week`, { method: "POST" }),
   allowanceHistory: (childId) => request(`/children/${childId}/allowance/history`),
-  createChildAuth: (body) => request("/children", { method: "POST", body })
+  createChildAuth: (body) => request("/children", { method: "POST", body }),
+  updateChild: (id, body) => request(`/children/${id}`, { method: "PUT", body }),
+  allAchievements: () => request("/achievements"),
+  createAchievement: (body) => request("/achievements", { method: "POST", body }),
+  updateAchievement: (id, body) => request(`/achievements/${id}`, { method: "PUT", body }),
+  deleteAchievement: (id) => request(`/achievements/${id}`, { method: "DELETE" })
 };

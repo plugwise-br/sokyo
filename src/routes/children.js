@@ -21,4 +21,10 @@ router.post("/", requireParent, (req, res) => {
   res.json(child);
 });
 
+router.put("/:id", requireParent, (req, res) => {
+  const child = childrenRepo.update(req.params.id, req.body || {});
+  if (!child) return res.status(404).json({ error: "not_found" });
+  res.json(child);
+});
+
 module.exports = router;

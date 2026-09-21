@@ -25,4 +25,36 @@ function unlock(childId, achievementId) {
   return db.prepare("SELECT * FROM achievements WHERE id=?").get(achievementId);
 }
 
-module.exports = { listByFamily, listUnlockedByChild, isUnlocked, unlock };
+const RULE_TYPES = ["streak_at_least", "total_completions_at_least", "completions_in_category_at_least"];
+
+function get(achievementId) {
+  return db.prepare("SELECT * FROM achievements WHERE id=?").get(achievementId);
+}
+
+function create(familyId, body) {
+  const achievementId = id();
+  const ruleType = RULE_TYPES.indexOf(body.ruleType) >= 0 ? body.ruleType : "total_completions_at_least";
+  db.prepare(
+    `INSERT INTO achievements (id, family_id, name, description, icon, rule_type, rule_value, rule_category_id)
+     VALUES (?,?,?,?,?,?,?,?)`
+  ).run(achievementId, familyId, body.name, body.description || null, body.icon || "🏆", ruleType,
+    Math.max(1, parseInt(body.ruleValue, 10) || 1), ruleType === "completions_in_category_at_least" ? (body.ruleCategoryId || null) : null);
+  return get(achievementId);
+}
+
+function update(achievementId, body) {
+  const current = get(achievementId);
+  if (!current) return null;
+  const name = body.name !== undefined ? body.name : current.name;
+  const icon = body.icon !== undefined ? body.icon : current.icon;
+  const description = body.description !== undefined ? body.description : current.description;
+  db.prepare("UPDATE achievements SET name=?, icon=?, description=? WHERE id=?").run(name, icon, description, achievementId);
+  return get(achievementId);
+}
+
+function remove(achievementId) {
+  db.prepare("DELETE FROM child_achievements WHERE achievement_id=?").run(achievementId);
+  return db.prepare("DELETE FROM achievements WHERE id=?").run(achievementId).changes > 0;
+}
+
+module.exports = { listByFamily, listUnlockedByChild, isUnlocked, unlock, get, create, update, remove, RULE_TYPES };

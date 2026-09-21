@@ -19,6 +19,28 @@ router.get("/children/:childId/achievements", (req, res) => {
   });
 });
 
+router.get("/achievements", requireParent, (req, res) => {
+  res.json(achievementsRepo.listByFamily(familyId));
+});
+
+router.post("/achievements", requireParent, (req, res) => {
+  const name = String((req.body && req.body.name) || "").trim();
+  if (!name) return res.status(400).json({ error: "name_required" });
+  res.json(achievementsRepo.create(familyId, req.body));
+});
+
+router.put("/achievements/:id", requireParent, (req, res) => {
+  const a = achievementsRepo.update(req.params.id, req.body || {});
+  if (!a) return res.status(404).json({ error: "not_found" });
+  res.json(a);
+});
+
+router.delete("/achievements/:id", requireParent, (req, res) => {
+  const ok = achievementsRepo.remove(req.params.id);
+  if (!ok) return res.status(404).json({ error: "not_found" });
+  res.json({ ok: true });
+});
+
 // Diario: historico de conclusoes de uma janela de dias (padrao 14).
 router.get("/children/:childId/diary", (req, res) => {
   const days = Math.min(60, parseInt(req.query.days, 10) || 14);

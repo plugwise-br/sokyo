@@ -1,7 +1,7 @@
 import { api } from "./api.js";
 import { esc, fmtBRL, TASK_TYPE_LABEL, REWARD_TYPE_LABEL } from "./format.js";
 
-const TABS = [["dashboard", "Painel"], ["tarefas", "Missões"], ["aprovacao", "Aprovação"], ["recompensas", "Recompensas"], ["metas", "Metas"], ["mesada", "Mesada"]];
+const TABS = [["dashboard", "Painel"], ["tarefas", "Missões"], ["aprovacao", "Aprovação"], ["recompensas", "Recompensas"], ["conquistas", "Conquistas"], ["metas", "Metas"], ["mesada", "Mesada"]];
 
 function headerHtml() {
   return `<div class="topbar">
@@ -29,7 +29,11 @@ async function tabDashboard() {
   dash.children.forEach((c, i) => {
     const report = reports[i];
     html += `<div class="card">
-      <div class="section-head">${c.avatar} ${esc(c.name)} · Nível ${c.level.level} (${esc(c.level.name)})</div>
+      <div class="section-head">Nível ${c.level.level} (${esc(c.level.name)})</div>
+      <div class="list-item" data-child-row="${c.id}" style="padding-left:0; padding-right:0">
+        <input type="text" class="icon-input" data-field="avatar" value="${esc(c.avatar)}" title="Avatar (emoji)">
+        <input type="text" class="grow" data-field="name" value="${esc(c.name)}" title="Nome">
+      </div>
       <div class="stat-row" style="position:static; margin:10px 0">
         <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)">⭐ <div><span class="n">${c.xp}</span><span class="l">XP</span></div></div>
         <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)">🪙 <div><span class="n">${c.coins}</span><span class="l">moedas</span></div></div>
@@ -142,6 +146,46 @@ async function tabRecompensas() {
   return html;
 }
 
+// ---------------- Conquistas ----------------
+const RULE_TYPE_LABEL = {
+  streak_at_least: "dias seguidos (sequência)",
+  total_completions_at_least: "missões concluídas (total)",
+  completions_in_category_at_least: "missões concluídas numa área"
+};
+
+async function tabConquistas() {
+  const [achievements, categories] = await Promise.all([api.allAchievements(), api.categories()]);
+  let html = `<div class="card"><h2>🏆 Conquistas</h2><p class="muted">Troque o ícone e o texto de cada uma. A regra de desbloqueio (streak, contagem etc.) é definida só na criação.</p></div><div class="card">`;
+  if (achievements.length === 0) html += `<div class="empty">Nenhuma conquista cadastrada.</div>`;
+  achievements.forEach((a) => {
+    const catName = a.rule_category_id ? categories.find((c) => c.id === a.rule_category_id) : null;
+    html += `<div class="list-item" data-ach-row="${a.id}" style="align-items:flex-start">
+      <input type="text" class="icon-input" data-field="icon" value="${esc(a.icon)}" title="Ícone (emoji)">
+      <div class="grow" style="min-width:160px">
+        <input type="text" data-field="name" value="${esc(a.name)}" style="margin-bottom:6px">
+        <input type="text" data-field="description" value="${esc(a.description || "")}" placeholder="Descrição">
+        <div class="muted" style="margin-top:4px; font-size:.72rem">Regra: ${a.rule_value} ${RULE_TYPE_LABEL[a.rule_type] || a.rule_type}${catName ? " · " + catName.icon + " " + esc(catName.name) : ""}</div>
+      </div>
+      <button class="icon-btn no" data-action="delete-achievement" data-id="${a.id}" title="Excluir">✕</button>
+    </div>`;
+  });
+
+  html += `<div style="margin-top:14px">
+    <div class="row" style="flex-wrap:wrap">
+      <div style="width:52px"><input type="text" class="icon-input" id="na-icon" placeholder="🏆" value="🏆"></div>
+      <div class="field" style="min-width:140px"><input type="text" id="na-name" placeholder="Nome da conquista"></div>
+    </div>
+    <div style="margin-top:8px"><input type="text" id="na-description" placeholder="Descrição (opcional)"></div>
+    <div class="row" style="margin-top:8px; flex-wrap:wrap">
+      <div class="field"><label>Quando desbloqueia</label><select id="na-rule-type">${Object.entries(RULE_TYPE_LABEL).map(([v, l]) => `<option value="${v}">${l}</option>`).join("")}</select></div>
+      <div style="width:80px"><label>Quantidade</label><input type="number" id="na-rule-value" value="7" min="1"></div>
+    </div>
+    <div style="margin-top:8px" id="na-category-wrap"><label>Área</label><select id="na-category">${categories.map((c) => `<option value="${c.id}">${c.icon} ${esc(c.name)}</option>`).join("")}</select></div>
+    <div style="margin-top:10px"><button class="btn btn-primary" id="na-submit">Criar conquista</button></div>
+  </div></div>`;
+  return html;
+}
+
 // ---------------- Metas ----------------
 async function tabMetas(state) {
   const children = await api.children();
@@ -223,6 +267,7 @@ export async function renderParentApp(root, ctx) {
     else if (tab === "tarefas") bodyHtml = await tabTarefas();
     else if (tab === "aprovacao") bodyHtml = await tabAprovacao();
     else if (tab === "recompensas") bodyHtml = await tabRecompensas();
+    else if (tab === "conquistas") bodyHtml = await tabConquistas();
     else if (tab === "metas") bodyHtml = await tabMetas(state);
     else bodyHtml = await tabMesada(state);
   } catch (err) {
@@ -233,11 +278,27 @@ export async function renderParentApp(root, ctx) {
   document.getElementById("btn-child").addEventListener("click", goChild);
   root.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => setTab(el.dataset.tab)));
 
+  bindDashboardTab(root, ctx, tab);
   bindTasksTab(root, ctx, tab);
   bindAprovacaoTab(root, ctx, tab);
   bindRecompensasTab(root, ctx, tab);
+  bindConquistasTab(root, ctx, tab);
   bindMetasTab(root, ctx, tab);
   bindMesadaTab(root, ctx, tab);
+}
+
+function bindDashboardTab(root, ctx, tab) {
+  if (tab !== "dashboard") return;
+  root.querySelectorAll("[data-child-row]").forEach((row) => {
+    const id = row.dataset.childRow;
+    row.querySelectorAll("[data-field]").forEach((input) => {
+      input.addEventListener("change", async () => {
+        const field = input.dataset.field;
+        try { await api.updateChild(id, { [field]: input.value }); ctx.toast("Salvo."); ctx.setTab(tab); }
+        catch (e) { ctx.toast("Não foi possível salvar."); }
+      });
+    });
+  });
 }
 
 function bindTasksTab(root, ctx, tab) {
@@ -326,6 +387,42 @@ function bindRecompensasTab(root, ctx, tab) {
       });
       ctx.setTab(tab);
     } catch (e) { ctx.toast("Não foi possível criar a recompensa."); }
+  });
+}
+
+function bindConquistasTab(root, ctx, tab) {
+  if (tab !== "conquistas") return;
+  const ruleType = document.getElementById("na-rule-type");
+  const catWrap = document.getElementById("na-category-wrap");
+  const syncCat = () => catWrap.classList.toggle("hidden", ruleType.value !== "completions_in_category_at_least");
+  ruleType.addEventListener("change", syncCat);
+  syncCat();
+
+  root.querySelectorAll("[data-ach-row]").forEach((row) => {
+    const id = row.dataset.achRow;
+    row.querySelectorAll("[data-field]").forEach((input) => {
+      input.addEventListener("change", async () => {
+        const field = input.dataset.field;
+        try { await api.updateAchievement(id, { [field]: input.value }); } catch (e) { ctx.toast("Não foi possível salvar."); }
+      });
+    });
+  });
+  root.querySelectorAll('[data-action="delete-achievement"]').forEach((btn) => btn.addEventListener("click", async () => {
+    if (!confirm("Excluir esta conquista? Quem já desbloqueou perde o registro.")) return;
+    try { await api.deleteAchievement(btn.dataset.id); ctx.setTab(tab); } catch (e) { ctx.toast("Não foi possível excluir."); }
+  }));
+  document.getElementById("na-submit").addEventListener("click", async () => {
+    const name = document.getElementById("na-name").value.trim();
+    if (!name) return;
+    try {
+      await api.createAchievement({
+        name, icon: document.getElementById("na-icon").value.trim() || "🏆",
+        description: document.getElementById("na-description").value.trim(),
+        ruleType: ruleType.value, ruleValue: document.getElementById("na-rule-value").value,
+        ruleCategoryId: document.getElementById("na-category").value
+      });
+      ctx.setTab(tab);
+    } catch (e) { ctx.toast("Não foi possível criar a conquista."); }
   });
 }
 

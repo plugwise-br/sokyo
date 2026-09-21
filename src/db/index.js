@@ -136,10 +136,10 @@ function seedIfEmpty() {
       `INSERT INTO achievements (id, family_id, name, description, icon, rule_type, rule_value, rule_category_id)
        VALUES (?,?,?,?,?,?,?,?)`
     );
-    insAch.run(id(), familyId, "Guardião da Manhã", "7 dias seguidos cumprindo a rotina", "🏆", "streak_at_least", 7, null);
-    insAch.run(id(), familyId, "Super Organizado", "10 tarefas de autonomia concluídas", "🏆", "completions_in_category_at_least", 10, catIds.autonomia);
-    insAch.run(id(), familyId, "Ajudante da Família", "20 missões de família concluídas", "🏆", "completions_in_category_at_least", 20, catIds.familia);
-    insAch.run(id(), familyId, "Mestre da Autonomia", "100 tarefas concluídas no total", "🏆", "total_completions_at_least", 100, null);
+    insAch.run(id(), familyId, "Guardião da Manhã", "7 dias seguidos cumprindo a rotina", "🌅", "streak_at_least", 7, null);
+    insAch.run(id(), familyId, "Super Organizado", "10 tarefas de autonomia concluídas", "🗂️", "completions_in_category_at_least", 10, catIds.autonomia);
+    insAch.run(id(), familyId, "Ajudante da Família", "20 missões de família concluídas", "🤝", "completions_in_category_at_least", 20, catIds.familia);
+    insAch.run(id(), familyId, "Mestre da Autonomia", "100 tarefas concluídas no total", "🎓", "total_completions_at_least", 100, null);
   });
 
   return familyId;
