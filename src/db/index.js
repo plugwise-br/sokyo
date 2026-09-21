@@ -51,7 +51,8 @@ function hashPin(pin) {
 // os arquivos chegam - ate la cai no fallback neutro (icon, emoji).
 const ACHIEVEMENT_DEFS = [
   { key: "guardiao_manha", name: "Guardião da Manhã", nameBoy: "Guardião da Manhã", nameGirl: "Guardiã da Manhã",
-    description: "7 dias seguidos cumprindo a rotina", icon: "🌅", ruleType: "streak_at_least", ruleValue: 7, ruleCategory: null },
+    description: "7 dias seguidos cumprindo a rotina", icon: "🌅", ruleType: "streak_at_least", ruleValue: 7, ruleCategory: null,
+    iconBoy: "/icons/achievements/guardiao-manha-boy.png", iconGirl: "/icons/achievements/guardiao-manha-girl.png" },
   { key: "super_organizado", name: "Super Organizado", nameBoy: "Super Organizado", nameGirl: "Super Organizada",
     description: "10 tarefas de autonomia concluídas", icon: "🗂️", ruleType: "completions_in_category_at_least", ruleValue: 10, ruleCategory: "autonomia" },
   { key: "ajudante_familia", name: "Ajudante da Família", nameBoy: "Ajudante da Família", nameGirl: "Ajudante da Família",
