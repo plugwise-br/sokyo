@@ -21,9 +21,11 @@ function createApp() {
   // sem precisar de redeploy. Precisa vir ANTES do express.static abaixo
   // (que tambem serviria um manifest.json estatico de public/).
   app.get("/manifest.json", (req, res) => {
+    res.set("Cache-Control", "no-store"); // marca pode mudar a qualquer momento pelo /admin
     const b = brandingRepo.get();
     const icon = b && b.logo_url ? b.logo_url : "/icons/icon-192.png";
     const iconBig = b && b.logo_url ? b.logo_url : "/icons/icon-512.png";
+    const iconMaskable = b && b.logo_url ? b.logo_url : "/icons/icon-maskable-512.png";
     res.json({
       name: b ? b.app_name : "Sokyo",
       short_name: b ? b.app_name.split(" ")[0] : "Sokyo",
@@ -34,14 +36,17 @@ function createApp() {
       icons: [
         { src: icon, sizes: "192x192", type: "image/png", purpose: "any" },
         { src: iconBig, sizes: "512x512", type: "image/png", purpose: "any" },
-        { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
+        { src: iconMaskable, sizes: "512x512", type: "image/png", purpose: "maskable" }
       ]
     });
   });
 
   // Logo enviado pelo super admin: fica no volume persistente (data/uploads),
-  // nao na imagem da aplicacao - sobrevive a rebuild/redeploy.
-  app.use("/branding-uploads", express.static(path.join(DATA_DIR, "uploads")));
+  // nao na imagem da aplicacao - sobrevive a rebuild/redeploy. Nunca em cache
+  // do navegador tambem, pelo mesmo motivo do manifest acima.
+  app.use("/branding-uploads", express.static(path.join(DATA_DIR, "uploads"), {
+    setHeaders: (res) => res.set("Cache-Control", "no-store")
+  }));
 
   app.use(express.static(path.join(__dirname, "..", "public")));
 
