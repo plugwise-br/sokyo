@@ -2,7 +2,7 @@
 // marca (manifest.json e os icones dependem do que o super admin definiu
 // em /admin e podem mudar a qualquer momento sem um novo deploy, entao
 // NUNCA podem ficar presos em cache - sempre direto da rede).
-const CACHE_NAME = "sokyo-shell-v2";
+const CACHE_NAME = "sokyo-shell-v3";
 const SHELL_FILES = [
   "/", "/index.html",
   "/css/style.css",
@@ -28,13 +28,13 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || url.pathname.startsWith("/api/")) return; // nunca intercepta API
   if (NEVER_CACHE_PATHS.some((p) => url.pathname.startsWith(p))) return; // marca do produto: sempre rede, nunca cache
 
+  // Network-first: sempre busca a versao mais nova primeiro (garante que um
+  // deploy novo aparece na hora, sem precisar de dois reloads). O cache so
+  // entra como fallback se a rede falhar (offline).
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request).then((res) => {
-        if (res.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, res.clone()));
-        return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
+    fetch(event.request).then((res) => {
+      if (res.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, res.clone()));
+      return res;
+    }).catch(() => caches.match(event.request))
   );
 });
