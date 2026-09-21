@@ -283,7 +283,13 @@ function bindAprovacaoTab(root, ctx, tab) {
   root.querySelectorAll('[data-action="approve-completion"], [data-action="reject-completion"]').forEach((btn) => {
     btn.addEventListener("click", async () => {
       const status = btn.dataset.action === "approve-completion" ? "approved" : "rejected";
-      try { await api.resolveCompletion(btn.dataset.id, status); ctx.setTab(tab); } catch (e) { ctx.toast("Não foi possível registrar."); }
+      try {
+        const res = await api.resolveCompletion(btn.dataset.id, status);
+        if (res.unlockedAchievements && res.unlockedAchievements.length) {
+          ctx.toast(res.unlockedAchievements.map((a) => `🏆 ${a.name}!`).join("  ·  "));
+        }
+        ctx.setTab(tab);
+      } catch (e) { ctx.toast("Não foi possível registrar."); }
     });
   });
   root.querySelectorAll('[data-action="approve-redemption"], [data-action="reject-redemption"]').forEach((btn) => {

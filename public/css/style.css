@@ -168,5 +168,28 @@ select{padding:9px 10px; border-radius:10px; border:1px solid var(--line); backg
   position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:var(--bg);
   padding:10px 16px; border-radius:12px; font-weight:800; font-size:.82rem; z-index:60; box-shadow:var(--shadow);
   opacity:0; pointer-events:none; transition:opacity .25s ease;
+  max-width:calc(100vw - 32px); text-align:center;
 }
 .toast.show{opacity:1}
+
+.loading-bar{
+  position:fixed; top:0; left:0; height:3px; width:100%; z-index:70; pointer-events:none;
+  background:linear-gradient(90deg, transparent, var(--primary), var(--gold), transparent);
+  background-size:200% 100%; opacity:0; transition:opacity .15s ease;
+}
+.loading-bar.show{opacity:1; animation:loading-sweep 1s linear infinite}
+@keyframes loading-sweep{ from{background-position:200% 0} to{background-position:-200% 0} }
+
+@media (prefers-reduced-motion: no-preference){
+  .card, .topbar, .profile-screen{ animation:card-in .28s ease both }
+  .card:nth-child(2){animation-delay:.03s} .card:nth-child(3){animation-delay:.06s} .card:nth-child(4){animation-delay:.09s}
+}
+@keyframes card-in{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
+
+.btn, .task-btn, .icon-btn, .tab, .mode-toggle, .profile-card{ transition:transform .12s ease, opacity .12s ease }
+.btn:active, .task-btn:active, .icon-btn:active, .profile-card:active{ transform:scale(.96) }
+.btn[disabled]:active, .task-btn[disabled]:active{ transform:none }
+@media (prefers-reduced-motion: reduce){
+  .card, .topbar, .profile-screen{ animation:none }
+  .btn, .task-btn, .icon-btn, .tab, .mode-toggle, .profile-card{ transition:none }
+}

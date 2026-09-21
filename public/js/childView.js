@@ -167,12 +167,18 @@ export async function renderChildApp(root, ctx) {
 
   root.querySelectorAll('[data-action="complete"]').forEach((btn) => btn.addEventListener("click", async () => {
     btn.disabled = true; btn.textContent = "Enviando...";
-    try { await api.completeTask(child.id, btn.dataset.task); } catch (e) { toast("Não foi possível enviar."); }
+    try {
+      const res = await api.completeTask(child.id, btn.dataset.task);
+      await celebrate(res, child, toast);
+    } catch (e) { toast("Não foi possível enviar."); }
     ctx.setTab(tab);
   }));
   root.querySelectorAll('[data-action="subtask"]').forEach((cb) => cb.addEventListener("change", async () => {
     cb.disabled = true;
-    try { await api.toggleSubtask(child.id, cb.dataset.task, cb.dataset.subtask); } catch (e) { toast("Não foi possível salvar."); }
+    try {
+      const res = await api.toggleSubtask(child.id, cb.dataset.task, cb.dataset.subtask);
+      await celebrate(res, child, toast);
+    } catch (e) { toast("Não foi possível salvar."); }
     ctx.setTab(tab);
   }));
   root.querySelectorAll('[data-action="redeem"]').forEach((btn) => btn.addEventListener("click", async () => {
@@ -183,6 +189,18 @@ export async function renderChildApp(root, ctx) {
     } catch (e) { toast(e.code === "insufficient_coins" ? "Moedas insuficientes." : "Não foi possível trocar."); }
     ctx.setTab(tab);
   }));
+}
+
+// Junta as conquistas desbloqueadas e o aviso de subida de nivel numa unica
+// mensagem (o toast so mostra uma coisa por vez, entao evita empilhar varios).
+async function celebrate(res, child, toast) {
+  const messages = (res.unlockedAchievements || []).map((a) => `🏆 ${a.name}!`);
+  if (res.status === "approved") {
+    const fresh = await api.children().catch(() => []);
+    const updated = fresh.find((c) => c.id === child.id);
+    if (updated && updated.level.level > child.level.level) messages.push(`🎉 Nível ${updated.level.level} · ${updated.level.name}!`);
+  }
+  if (messages.length) toast(messages.join("  ·  "));
 }
 
 async function renderTasksTab(tasks, child) {

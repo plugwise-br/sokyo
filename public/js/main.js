@@ -12,7 +12,7 @@ export function toast(msg) {
   toastEl.textContent = msg;
   toastEl.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2400);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3200);
 }
 
 const state = {
@@ -113,7 +113,18 @@ function renderProfileSelect() {
   document.getElementById("go-parent-empty").addEventListener("click", goParent);
 }
 
+let loadingDepth = 0;
+function setLoading(on) {
+  loadingDepth = Math.max(0, loadingDepth + (on ? 1 : -1));
+  document.getElementById("loading-bar").classList.toggle("show", loadingDepth > 0);
+}
+
 export async function render() {
+  setLoading(true);
+  try { await renderInner(); } finally { setLoading(false); }
+}
+
+async function renderInner() {
   if (state.mode === "select") {
     await loadChildren();
     if (state.children.length === 1 && !state.childId) setChild(state.children[0].id);
@@ -143,6 +154,21 @@ export async function render() {
   }
 }
 
+function userIsTyping() {
+  const el = document.activeElement;
+  if (!el || !root.contains(el)) return false;
+  return el.matches("input, textarea, select");
+}
+
 render();
-setInterval(() => { if (!state.pinModalOpen) render(); }, 6000);
-window.addEventListener("focus", () => { if (!state.pinModalOpen) render(); });
+setInterval(() => { if (!state.pinModalOpen && !userIsTyping()) render(); }, 6000);
+window.addEventListener("focus", () => { if (!state.pinModalOpen && !userIsTyping()) render(); });
+
+window.addEventListener("online", () => toast("Conexão restabelecida ✓"));
+window.addEventListener("offline", () => toast("Sem conexão com a internet — algumas ações podem falhar."));
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+  });
+}
