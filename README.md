@@ -4,16 +4,16 @@ Sistema de gamificação de responsabilidades para crianças. Produto Plugwise, 
 
 > "Pequenas missões. Grandes conquistas."
 
-## Status atual (Fase 2 + Fase 3 concluídas)
+## Status atual (Fase 4 concluída)
 
 - ✅ **Fase 0 — Auditoria** (`PROJECT_AUDIT.md`)
 - ✅ **Fase 1 — Arquitetura** (`PRODUCT_ARCHITECTURE.md`)
 - ✅ **Fase 2 — Banco**: schema SQLite (`src/db/schema.sql`), com seed inicial (família, Arthur, categorias, tarefas, recompensas, metas, conquistas).
 - ✅ **Fase 3 — Core game**: crianças, tarefas (rotina/bônus/épica), conclusão, aprovação, XP e moedas como **transações auditáveis** (nunca um incremento direto de saldo), streak, níveis, histórico/diário. Coberto por 9 testes automatizados (`npm test`), todos passando.
-- ⏳ **Fase 4 — Pais** (dashboard, CRUD administrativo, mesada): endpoints já existem no backend; falta a interface.
-- ⏳ **Fase 5 — Polimento**: PWA, frontend completo, estados vazios/loading, responsividade.
+- ✅ **Fase 4 — Pais e app da criança**: seleção de perfil sem senha, app da criança (Hoje / Personagem / Recompensas / Metas / Diário, incluindo checklist de missão épica), painel dos pais atrás de PIN (dashboard, CRUD de missões e recompensas, fila de aprovação, metas por filho, mesada com os dois modelos, troca de PIN). Validado manualmente end-to-end com Playwright, além dos 9 testes automatizados.
+- ⏳ **Fase 5 — Polimento**: PWA (manifest/ícones/instalação), estados vazios/loading mais ricos, animações leves, responsividade fina, offline básico.
 
-A interface visual (HTML/CSS) da versão anterior do protótipo está preservada em `public/legacy-reference.html`, como referência de identidade visual (cores, tipografia, layout de cards) para reconstruir a interface em cima da nova API — ainda não está conectada a ela.
+A interface visual da versão anterior do protótipo está preservada em `public/legacy-reference.html` — a nova interface (`public/js/`, `public/css/`) manteve a mesma identidade (paleta verde/dourado, Baloo 2 + Nunito, cards arredondados) sobre o modelo de dados novo.
 
 ## Stack
 
