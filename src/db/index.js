@@ -55,7 +55,8 @@ const ACHIEVEMENT_DEFS = [
   { key: "super_organizado", name: "Super Organizado", nameBoy: "Super Organizado", nameGirl: "Super Organizada",
     description: "10 tarefas de autonomia concluídas", icon: "🗂️", ruleType: "completions_in_category_at_least", ruleValue: 10, ruleCategory: "autonomia" },
   { key: "ajudante_familia", name: "Ajudante da Família", nameBoy: "Ajudante da Família", nameGirl: "Ajudante da Família",
-    description: "20 missões de família concluídas", icon: "🤝", ruleType: "completions_in_category_at_least", ruleValue: 20, ruleCategory: "familia" },
+    description: "20 missões de família concluídas", icon: "🤝", ruleType: "completions_in_category_at_least", ruleValue: 20, ruleCategory: "familia",
+    iconBoy: "/icons/achievements/ajudante-familia-boy.png", iconGirl: "/icons/achievements/ajudante-familia-girl.png" },
   { key: "mestre_autonomia", name: "Mestre da Autonomia", nameBoy: "Mestre da Autonomia", nameGirl: "Mestra da Autonomia",
     description: "100 tarefas concluídas no total", icon: "🎓", ruleType: "total_completions_at_least", ruleValue: 100, ruleCategory: null,
     iconBoy: "/icons/achievements/mestre-autonomia-boy.png", iconGirl: "/icons/achievements/mestre-autonomia-girl.png" }
