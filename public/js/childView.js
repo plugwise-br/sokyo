@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { esc, fmtBRL, DOW, achievementDisplay, iconHtml } from "./format.js";
+import { esc, fmtBRL, DOW, achievementDisplay, iconHtml, isImageIcon } from "./format.js";
 
 const TABS = [["hoje", "Hoje"], ["personagem", "Personagem"], ["recompensas", "Recompensas"], ["metas", "Metas"], ["diario", "Diário"]];
 
@@ -85,7 +85,10 @@ async function tabPersonagem(child) {
   ach.all.forEach((a) => {
     const unlocked = ach.unlocked.some((u) => u.id === a.id);
     const d = achievementDisplay(a, child.gender);
-    html += `<div class="ach-card ${unlocked ? "" : "locked"}">${iconHtml(d.icon, "ic")}${esc(d.name)}</div>`;
+    // a arte ja traz o nome da conquista escrita - so mostra o texto separado
+    // quando o icone e um emoji (sem nome embutido na imagem).
+    const label = isImageIcon(d.icon) ? "" : esc(d.name);
+    html += `<div class="ach-card ${unlocked ? "" : "locked"}">${iconHtml(d.icon, "ic")}${label}</div>`;
   });
   html += `</div></div>`;
   return html;

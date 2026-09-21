@@ -27,10 +27,13 @@ export function achievementDisplay(a, gender) {
 
 // Um "icone" pode ser um emoji (texto) ou o caminho de uma imagem enviada
 // pelo admin/pais - se comeca com "/" ou "http", renderiza como <img>.
-export function iconHtml(icon, cssClass) {
+export function isImageIcon(icon) {
   var val = icon || "";
-  if (val.startsWith("/") || val.startsWith("http")) {
-    return '<img class="' + (cssClass || "") + '" src="' + val + '" alt="">';
+  return val.startsWith("/") || val.startsWith("http");
+}
+export function iconHtml(icon, cssClass) {
+  if (isImageIcon(icon)) {
+    return '<img class="' + (cssClass || "") + '" src="' + icon + '" alt="">';
   }
-  return '<span class="' + (cssClass || "") + '">' + esc(val) + '</span>';
+  return '<span class="' + (cssClass || "") + '">' + esc(icon || "") + '</span>';
 }
