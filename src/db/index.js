@@ -145,13 +145,27 @@ function seedIfEmpty() {
   return familyId;
 }
 
+// Paleta oficial da Sokyo (extraida do logotipo): roxo + verde-limao.
+const BRAND_PRIMARY = "#7413DE";
+const BRAND_ACCENT = "#CEFC39";
+const LEGACY_DEFAULT_PRIMARY = "#1F8A70"; // paleta provisoria de antes do logo existir
+
 function seedBrandingIfEmpty() {
-  const existing = db.prepare("SELECT id FROM branding LIMIT 1").get();
-  if (existing) return;
-  db.prepare(
-    `INSERT INTO branding (id, app_name, tagline, primary_color, secondary_color, gold_color, accent_color, logo_url)
-     VALUES ('default', ?, ?, ?, ?, ?, ?, NULL)`
-  ).run("Sokyo — Missão Arthur", "Pequenas missões. Grandes conquistas.", "#1F8A70", "#FF6B4A", "#E8940C", "#6C5CE7");
+  const existing = db.prepare("SELECT * FROM branding LIMIT 1").get();
+  if (!existing) {
+    db.prepare(
+      `INSERT INTO branding (id, app_name, tagline, primary_color, secondary_color, gold_color, accent_color, logo_url)
+       VALUES ('default', ?, ?, ?, ?, ?, ?, NULL)`
+    ).run("Sokyo — Missão Arthur", "Pequenas missões. Grandes conquistas.", BRAND_PRIMARY, "#FF6B4A", "#E8940C", BRAND_ACCENT);
+    return;
+  }
+  // Migracao unica: instancia ja existente que ninguem personalizou ainda
+  // (continua com a paleta provisoria) ganha a paleta oficial automaticamente.
+  // Quem ja trocou pelo /admin nao e mexido.
+  if (existing.primary_color === LEGACY_DEFAULT_PRIMARY) {
+    db.prepare("UPDATE branding SET primary_color=?, accent_color=? WHERE id=?")
+      .run(BRAND_PRIMARY, BRAND_ACCENT, existing.id);
+  }
 }
 
 const familyId = seedIfEmpty();
