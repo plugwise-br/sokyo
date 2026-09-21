@@ -142,6 +142,11 @@ async function tabDiario(child) {
   return html;
 }
 
+// Guarda o ultimo HTML desenhado para nao recriar o DOM inteiro (e "piscar"
+// a tela) a cada atualizacao periodica quando nada realmente mudou.
+let lastRenderedHtml = null;
+export function resetChildCache() { lastRenderedHtml = null; }
+
 export async function renderChildApp(root, ctx) {
   const { child, tab, setTab, goParent, toast } = ctx;
 
@@ -161,7 +166,10 @@ export async function renderChildApp(root, ctx) {
   else if (tab === "metas") bodyHtml = await tabMetas(child);
   else bodyHtml = await tabDiario(child);
 
-  root.innerHTML = headerHtml(child, ctx) + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Feito com carinho para ${esc(child.name)} 💛</p>`;
+  const fullHtml = headerHtml(child, ctx) + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Feito com carinho para ${esc(child.name)} 💛</p>`;
+  if (fullHtml === lastRenderedHtml) return;
+  lastRenderedHtml = fullHtml;
+  root.innerHTML = fullHtml;
 
   document.getElementById("btn-parent").addEventListener("click", goParent);
   root.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => setTab(el.dataset.tab)));

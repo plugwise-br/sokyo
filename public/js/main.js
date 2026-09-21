@@ -1,6 +1,6 @@
 import { api, getToken, setToken, setUnauthorizedHandler } from "./api.js";
-import { renderChildApp } from "./childView.js";
-import { renderParentApp } from "./parentView.js";
+import { renderChildApp, resetChildCache } from "./childView.js";
+import { renderParentApp, resetParentCache } from "./parentView.js";
 import { loadBranding, getBranding } from "./branding.js";
 
 const CHILD_KEY = "sokyo.childId";
@@ -130,6 +130,7 @@ export async function render() {
 
 async function renderInner() {
   if (state.mode === "select") {
+    resetChildCache(); resetParentCache();
     await loadChildren();
     if (state.children.length === 1 && !state.childId) setChild(state.children[0].id);
     if (state.childId && state.children.some((c) => c.id === state.childId)) { state.mode = "child"; }
@@ -137,6 +138,7 @@ async function renderInner() {
   }
 
   if (state.mode === "child") {
+    resetParentCache();
     await loadChildren();
     const child = state.children.find((c) => c.id === state.childId);
     if (!child) { state.mode = "select"; setChild(null); return render(); }
@@ -149,6 +151,7 @@ async function renderInner() {
   }
 
   if (state.mode === "parent") {
+    resetChildCache();
     await renderParentApp(root, {
       tab: state.parentTab,
       setTab: (t) => { state.parentTab = t; render(); },

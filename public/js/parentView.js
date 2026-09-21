@@ -272,6 +272,11 @@ async function tabMesada(state) {
 
 const state = { metasChild: null, mesadaChild: null };
 
+// Guarda o ultimo HTML desenhado para nao recriar o DOM inteiro (e "piscar"
+// a tela) a cada atualizacao periodica quando nada realmente mudou.
+let lastRenderedHtml = null;
+export function resetParentCache() { lastRenderedHtml = null; }
+
 export async function renderParentApp(root, ctx) {
   const { tab, setTab, goChild, toast } = ctx;
   let bodyHtml;
@@ -291,7 +296,10 @@ export async function renderParentApp(root, ctx) {
   }
 
   const b = getBranding();
-  root.innerHTML = headerHtml(firstChildAvatar) + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Painel dos pais · ${esc(b ? b.app_name : "Sokyo")}</p>`;
+  const fullHtml = headerHtml(firstChildAvatar) + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Painel dos pais · ${esc(b ? b.app_name : "Sokyo")}</p>`;
+  if (fullHtml === lastRenderedHtml) return;
+  lastRenderedHtml = fullHtml;
+  root.innerHTML = fullHtml;
   document.getElementById("btn-child").addEventListener("click", goChild);
   root.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => setTab(el.dataset.tab)));
 
