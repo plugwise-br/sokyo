@@ -1,0 +1,31 @@
+# Exemplo de vhost isolado para o Sokyo. NAO mexe em nenhum outro
+# server{} ja existente no /etc/nginx/sites-enabled - e um arquivo novo,
+# proprio deste projeto.
+#
+# Passo a passo:
+#   1. Confirme o DNS: um registro A para sokyo.plugwise.com.br apontando
+#      para o IP desta VPS (isso e feito no seu provedor de DNS, nao aqui).
+#   2. Copie este arquivo:
+#        sudo cp deploy/nginx-sokyo.conf.example /etc/nginx/sites-available/sokyo
+#   3. Se deploy.sh avisou que usou uma porta diferente de 3010, ajuste o
+#      "proxy_pass" abaixo antes de copiar.
+#   4. Ative e recarregue (NAO reinicia o nginx inteiro, so recarrega):
+#        sudo ln -s /etc/nginx/sites-available/sokyo /etc/nginx/sites-enabled/
+#        sudo nginx -t && sudo systemctl reload nginx
+#   5. Gere o certificado HTTPS (certbot detecta o server_name sozinho e
+#      cria o bloco de SSL automaticamente, sem tocar em outros vhosts):
+#        sudo certbot --nginx -d sokyo.plugwise.com.br
+
+server {
+    listen 80;
+    server_name sokyo.plugwise.com.br;
+
+    location / {
+        proxy_pass http://127.0.0.1:3010;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

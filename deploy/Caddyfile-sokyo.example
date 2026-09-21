@@ -1,0 +1,10 @@
+# Alternativa, se a VPS usar Caddy em vez de Nginx (o script deploy/discover.sh
+# diz qual dos dois esta em uso). Caddy ja cuida do certificado HTTPS sozinho,
+# sem precisar de certbot.
+#
+# Se ja existe um Caddyfile com outros sites, ADICIONE este bloco a ele
+# (nao substitua o arquivo inteiro) e rode: sudo systemctl reload caddy
+
+sokyo.plugwise.com.br {
+    reverse_proxy 127.0.0.1:3010
+}

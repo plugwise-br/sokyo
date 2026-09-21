@@ -20,7 +20,7 @@ A interface visual da versão anterior do protótipo está preservada em `public
 ## Stack
 
 - **Backend**: Node.js 22+ (usa `node:sqlite`, nativo — zero dependências de banco externas) + Express.
-- **Frontend**: por enquanto só um placeholder; será reconstruído em HTML/CSS/JS.
+- **Frontend**: HTML/CSS/JS vanilla com ES modules (`public/js/`), sem build step, PWA instalável.
 - **Persistência**: SQLite (`data/sokyo.db`), schema relacional com transações de XP/moedas auditáveis, multi-filhos desde a raiz do schema.
 - **Testes**: `node --test` (nativo do Node), sem dependências extras.
 
@@ -34,15 +34,11 @@ npm start        # sobe em http://localhost:3000
 
 PIN inicial dos pais (seed): `1010`.
 
-## Deploy (Docker)
+## Deploy na VPS
 
-```bash
-docker compose up -d --build
-```
+Runbook completo, com diagnóstico da infraestrutura existente antes de mexer em qualquer coisa (a VPS já roda outros sistemas da Plugwise — o deploy é isolado e nunca assume que ela está vazia): **ver [`DEPLOY.md`](./DEPLOY.md)**.
 
-Sobe na porta `3010` só em `127.0.0.1` (mapeamento em `docker-compose.yml`) — pensado para ficar atrás de um reverse proxy (Nginx/Caddy) que já exista na VPS, sem expor a porta direto na internet.
-
-**Importante — isolamento na VPS**: este projeto vai para a mesma VPS de outros sistemas da Plugwise, mas em repositório, container e porta próprios, sem tocar em nada existente. Antes de configurar o subdomínio `sokyo.plugwise.com.br`, ainda preciso confirmar como o roteamento de subdomínios já está montado nessa VPS (Nginx? Caddy?) para não colidir com nada — ver `PRODUCT_ARCHITECTURE.md`, seção 8.
+Resumo: `bash deploy/discover.sh` (só lê o ambiente) → `bash deploy/deploy.sh` (sobe o container numa porta livre, detectada automaticamente) → configurar `sokyo.plugwise.com.br` no Nginx/Caddy existente com os exemplos em `deploy/`.
 
 ## Estrutura
 
@@ -53,5 +49,9 @@ src/
   services/       # regras de negocio (gameService, rewardsService, allowanceService, reportService, achievementsService)
   routes/         # camada HTTP (Express), fina - so valida entrada e chama services/repositories
 tests/           # testes de ponta a ponta das regras criticas (node:test)
-public/          # frontend (placeholder + referencia visual do prototipo anterior)
+public/
+  index.html, css/, js/   # frontend (ES modules, sem build step)
+  manifest.json, service-worker.js, icons/   # PWA
+  legacy-reference.html    # referencia visual do prototipo anterior
+deploy/          # scripts de deploy isolado (discover.sh, deploy.sh) + exemplos de Nginx/Caddy
 ```
