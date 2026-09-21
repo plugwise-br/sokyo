@@ -66,11 +66,11 @@ function seedIfEmpty() {
     levels.forEach((l) => insLevel.run(...l));
 
     const categories = [
-      ["casa", "🏠 Casa", "🏠", "#1F8A70"],
-      ["cuidados", "🧼 Cuidados pessoais", "🧼", "#3AA5D6"],
-      ["autonomia", "🧠 Autonomia", "🧠", "#6C5CE7"],
-      ["responsabilidades", "📚 Responsabilidades", "📚", "#FF6B4A"],
-      ["familia", "❤️ Família", "❤️", "#E1503F"]
+      ["casa", "Casa", "🏠", "#1F8A70"],
+      ["cuidados", "Cuidados pessoais", "🧼", "#3AA5D6"],
+      ["autonomia", "Autonomia", "🧠", "#6C5CE7"],
+      ["responsabilidades", "Responsabilidades", "📚", "#FF6B4A"],
+      ["familia", "Família", "❤️", "#E1503F"]
     ];
     const insCat = db.prepare(
       "INSERT INTO task_categories (id, family_id, name, icon, color, sort_order) VALUES (?,?,?,?,?,?)"

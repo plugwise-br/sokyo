@@ -2,6 +2,7 @@
 const express = require("express");
 const parentsRepo = require("../repositories/parents");
 const { familyId } = require("../db");
+const { requireParent } = require("./middleware");
 
 const LOGIN_ATTEMPT_WINDOW_MS = 5 * 60 * 1000;
 const LOGIN_MAX_ATTEMPTS = 8;
@@ -26,6 +27,13 @@ router.post("/login", (req, res) => {
   attempts.delete(ip);
   const session = parentsRepo.createSession(parent.id);
   res.json({ token: session.token, expiresAt: session.expiresAt, parentName: parent.name });
+});
+
+router.put("/pin", requireParent, (req, res) => {
+  const newPin = String((req.body && req.body.newPin) || "").trim();
+  if (!newPin || newPin.length < 4) return res.status(400).json({ error: "pin_too_short" });
+  parentsRepo.setPin(req.parentId, newPin);
+  res.json({ ok: true });
 });
 
 module.exports = router;
