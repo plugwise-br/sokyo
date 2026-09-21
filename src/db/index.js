@@ -57,20 +57,25 @@ const ACHIEVEMENT_DEFS = [
   { key: "ajudante_familia", name: "Ajudante da Família", nameBoy: "Ajudante da Família", nameGirl: "Ajudante da Família",
     description: "20 missões de família concluídas", icon: "🤝", ruleType: "completions_in_category_at_least", ruleValue: 20, ruleCategory: "familia" },
   { key: "mestre_autonomia", name: "Mestre da Autonomia", nameBoy: "Mestre da Autonomia", nameGirl: "Mestra da Autonomia",
-    description: "100 tarefas concluídas no total", icon: "🎓", ruleType: "total_completions_at_least", ruleValue: 100, ruleCategory: null }
+    description: "100 tarefas concluídas no total", icon: "🎓", ruleType: "total_completions_at_least", ruleValue: 100, ruleCategory: null,
+    iconBoy: "/icons/achievements/mestre-autonomia-boy.png", iconGirl: "/icons/achievements/mestre-autonomia-girl.png" }
 ];
 
 // Migracao (banco ja existente): preenche nome/icone por genero nas 4
 // conquistas padrao, so onde ainda estiver vazio - nunca sobrescreve uma
 // edicao que o admin ja tenha feito pelo painel.
 function migrateAchievementGenderFields() {
-  const rows = db.prepare("SELECT id, name, name_boy, name_girl FROM achievements").all();
+  const rows = db.prepare("SELECT id, name, name_boy, name_girl, icon_boy, icon_girl FROM achievements").all();
   ACHIEVEMENT_DEFS.forEach((def) => {
     const row = rows.find((r) => r.name === def.name);
     if (!row) return;
     if (!row.name_boy || !row.name_girl) {
       db.prepare("UPDATE achievements SET name_boy=COALESCE(name_boy,?), name_girl=COALESCE(name_girl,?) WHERE id=?")
         .run(def.nameBoy, def.nameGirl, row.id);
+    }
+    if ((def.iconBoy && !row.icon_boy) || (def.iconGirl && !row.icon_girl)) {
+      db.prepare("UPDATE achievements SET icon_boy=COALESCE(icon_boy,?), icon_girl=COALESCE(icon_girl,?) WHERE id=?")
+        .run(def.iconBoy || null, def.iconGirl || null, row.id);
     }
   });
 }
