@@ -44,9 +44,9 @@ async function tabDashboard() {
         ${AVATAR_OPTIONS.map((a) => `<button class="avatar-option ${a === c.avatar ? "selected" : ""}" data-action="pick-avatar" data-id="${c.id}" data-avatar="${a}">${a}</button>`).join("")}
       </div>
       <div class="stat-row" style="position:static; margin:10px 0">
-        <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)">⭐ <div><span class="n">${c.xp}</span><span class="l">XP</span></div></div>
-        <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)">🪙 <div><span class="n">${c.coins}</span><span class="l">moedas</span></div></div>
-        <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)">🔥 <div><span class="n">${c.streak.current}</span><span class="l">dias (recorde ${c.streak.best})</span></div></div>
+        <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)"><img class="stat-icon" src="/icons/stats/xp.png" alt=""> <div><span class="n">${c.xp}</span><span class="l">XP</span></div></div>
+        <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)"><img class="stat-icon" src="/icons/stats/coins.png" alt=""> <div><span class="n">${c.coins}</span><span class="l">moedas</span></div></div>
+        <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)"><img class="stat-icon" src="/icons/stats/streak.png" alt=""> <div><span class="n">${c.streak.current}</span><span class="l">dias (recorde ${c.streak.best})</span></div></div>
       </div>`;
     if (report) {
       html += `<p class="muted" style="margin-bottom:6px">Esta semana: <strong>${report.completed}</strong> missões concluídas</p>`;

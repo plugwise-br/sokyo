@@ -71,6 +71,7 @@ img{max-width:100%}
 .stat-pill{flex:1; min-width:90px; background:rgba(255,255,255,.14); border-radius:14px; padding:9px 10px; display:flex; align-items:center; gap:7px; font-weight:800}
 .stat-pill .n{font-size:1.05rem; font-family:'Baloo 2'}
 .stat-pill .l{font-size:.66rem; opacity:.85; display:block; font-weight:700}
+.stat-icon{width:24px; height:24px; object-fit:contain; flex:none}
 
 .tabs{display:flex; gap:6px; background:var(--surface-2); padding:5px; border-radius:14px; overflow-x:auto}
 .tab{flex:1; text-align:center; padding:9px 4px; border-radius:10px; border:none; background:transparent; color:var(--ink-dim); font-weight:800; font-family:'Nunito'; font-size:.8rem; cursor:pointer; white-space:nowrap}

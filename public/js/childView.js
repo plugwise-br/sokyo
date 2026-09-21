@@ -23,9 +23,9 @@ function headerHtml(child, ctx) {
       <div class="xp-label"><span>XP · ${level.name}${level.nextLevelName ? " → " + esc(level.nextLevelName) : ""}</span><span>${level.xpIntoLevel}${level.xpForNextLevel ? "/" + level.xpForNextLevel : ""}</span></div>
     </div>
     <div class="stat-row">
-      <div class="stat-pill">🪙 <div><span class="n">${child.coins}</span><span class="l">moedas</span></div></div>
-      <div class="stat-pill">🔥 <div><span class="n">${child.streak.current}</span><span class="l">dias seguidos</span></div></div>
-      <div class="stat-pill">⭐ <div><span class="n">${child.xp}</span><span class="l">XP total</span></div></div>
+      <div class="stat-pill"><img class="stat-icon" src="/icons/stats/coins.png" alt=""> <div><span class="n">${child.coins}</span><span class="l">moedas</span></div></div>
+      <div class="stat-pill"><img class="stat-icon" src="/icons/stats/streak.png" alt=""> <div><span class="n">${child.streak.current}</span><span class="l">dias seguidos</span></div></div>
+      <div class="stat-pill"><img class="stat-icon" src="/icons/stats/xp.png" alt=""> <div><span class="n">${child.xp}</span><span class="l">XP total</span></div></div>
     </div>
   </div>`;
 }
