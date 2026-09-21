@@ -145,6 +145,16 @@ function seedIfEmpty() {
   return familyId;
 }
 
-const familyId = seedIfEmpty();
+function seedBrandingIfEmpty() {
+  const existing = db.prepare("SELECT id FROM branding LIMIT 1").get();
+  if (existing) return;
+  db.prepare(
+    `INSERT INTO branding (id, app_name, tagline, primary_color, secondary_color, gold_color, accent_color, logo_url)
+     VALUES ('default', ?, ?, ?, ?, ?, ?, NULL)`
+  ).run("Sokyo — Missão Arthur", "Pequenas missões. Grandes conquistas.", "#1F8A70", "#FF6B4A", "#E8940C", "#6C5CE7");
+}
 
-module.exports = { db, withTransaction, hashPin, familyId, DB_PATH };
+const familyId = seedIfEmpty();
+seedBrandingIfEmpty();
+
+module.exports = { db, withTransaction, hashPin, familyId, DB_PATH, DATA_DIR };

@@ -160,7 +160,7 @@ export async function renderChildApp(root, ctx) {
   else if (tab === "metas") bodyHtml = await tabMetas(child);
   else bodyHtml = await tabDiario(child);
 
-  root.innerHTML = headerHtml(child, ctx) + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Feito com carinho para o Arthur 💛</p>`;
+  root.innerHTML = headerHtml(child, ctx) + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Feito com carinho para ${esc(child.name)} 💛</p>`;
 
   document.getElementById("btn-parent").addEventListener("click", goParent);
   root.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => setTab(el.dataset.tab)));

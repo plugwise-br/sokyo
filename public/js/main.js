@@ -1,6 +1,7 @@
 import { api, getToken, setToken, setUnauthorizedHandler } from "./api.js";
 import { renderChildApp } from "./childView.js";
 import { renderParentApp } from "./parentView.js";
+import { loadBranding, getBranding } from "./branding.js";
 
 const CHILD_KEY = "sokyo.childId";
 const root = document.getElementById("app");
@@ -92,9 +93,10 @@ function renderPinModal() {
 }
 
 function renderProfileSelect() {
+  const b = getBranding();
   root.innerHTML = `
     <div class="profile-screen">
-      <h1>🎮 Sokyo — Missão Arthur</h1>
+      <h1>${b && b.logo_url ? `<img src="${b.logo_url}" alt="" style="height:56px; display:block; margin:0 auto 8px">` : "🎮"} ${b ? b.app_name : "Sokyo"}</h1>
       <p class="muted">Quem está jogando hoje?</p>
       <div class="profile-grid" id="profile-grid"></div>
       <button class="link-btn" id="go-parent-empty" style="align-self:center; background:var(--surface-2); color:var(--ink); border-color:var(--line)">👪 Modo pais</button>
@@ -160,7 +162,7 @@ function userIsTyping() {
   return el.matches("input, textarea, select");
 }
 
-render();
+loadBranding().finally(render);
 setInterval(() => { if (!state.pinModalOpen && !userIsTyping()) render(); }, 6000);
 window.addEventListener("focus", () => { if (!state.pinModalOpen && !userIsTyping()) render(); });
 

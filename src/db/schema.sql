@@ -179,6 +179,19 @@ CREATE TABLE IF NOT EXISTS parent_sessions (
   expires_at TEXT NOT NULL
 );
 
+-- Produto unico (nao multi-tenant): uma unica linha, controlada so pelo
+-- super admin (dono do produto) via /admin, nunca pelos pais das familias.
+CREATE TABLE IF NOT EXISTS branding (
+  id TEXT PRIMARY KEY,
+  app_name TEXT NOT NULL,
+  tagline TEXT,
+  primary_color TEXT NOT NULL,
+  secondary_color TEXT NOT NULL,
+  gold_color TEXT NOT NULL,
+  accent_color TEXT NOT NULL,
+  logo_url TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_tasks_family ON tasks(family_id);
 CREATE INDEX IF NOT EXISTS idx_completions_child_date ON task_completions(child_id, date);
 CREATE INDEX IF NOT EXISTS idx_xp_tx_child ON xp_transactions(child_id);

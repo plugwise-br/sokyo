@@ -1,12 +1,14 @@
 import { api } from "./api.js";
 import { esc, fmtBRL, TASK_TYPE_LABEL, REWARD_TYPE_LABEL } from "./format.js";
+import { getBranding } from "./branding.js";
 
 const TABS = [["dashboard", "Painel"], ["tarefas", "Missões"], ["aprovacao", "Aprovação"], ["recompensas", "Recompensas"], ["conquistas", "Conquistas"], ["metas", "Metas"], ["mesada", "Mesada"]];
 
 function headerHtml() {
+  const b = getBranding();
   return `<div class="topbar">
     <div class="topbar-row">
-      <div class="hero"><div class="avatar">👪</div><div><div class="hero-name">Painel dos Pais</div><div class="hero-sub">Missão Arthur · Sokyo</div></div></div>
+      <div class="hero"><div class="avatar">👪</div><div><div class="hero-name">Painel dos Pais</div><div class="hero-sub">${esc(b ? b.app_name : "Sokyo")}</div></div></div>
       <button class="mode-toggle" id="btn-child">🧒 Modo criança</button>
     </div>
   </div>`;
@@ -274,7 +276,8 @@ export async function renderParentApp(root, ctx) {
     bodyHtml = `<div class="card empty">Não foi possível carregar. ${err.code === "unauthorized" ? "Sessão expirada." : ""}</div>`;
   }
 
-  root.innerHTML = headerHtml() + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Painel dos pais · Sokyo</p>`;
+  const b = getBranding();
+  root.innerHTML = headerHtml() + tabsHtml(tab) + bodyHtml + `<p class="footer-note">Painel dos pais · ${esc(b ? b.app_name : "Sokyo")}</p>`;
   document.getElementById("btn-child").addEventListener("click", goChild);
   root.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => setTab(el.dataset.tab)));
 

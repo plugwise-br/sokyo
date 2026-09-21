@@ -53,3 +53,16 @@ Deve responder `200 OK`. Abra no navegador, confirme que a tela de seleção de 
 
 - **Troque o PIN padrão** (`1010`) pelo Modo pais → Mesada → Trocar PIN, assim que confirmar que está tudo funcionando.
 - Backup do banco: `cp sokyo/data/sokyo.db sokyo/data/sokyo.backup-$(date +%F).db` de vez em quando (é um arquivo único, fácil de copiar).
+
+## 6. Ativar a área de admin (marca do produto)
+
+Existe uma tela separada em `/admin` (ex.: `https://sokyo.plugwise.com.br/admin.html`) onde dá pra trocar nome do app, tagline, cores e logo — aplicado pra todo mundo, sem precisar mexer em código. É protegida por um PIN **próprio**, diferente do PIN das famílias, e **fica desativada por padrão** até você definir esse PIN.
+
+Pra ativar, defina `ADMIN_PIN` antes de subir o container:
+
+```bash
+echo "ADMIN_PIN=escolha_um_pin_forte_aqui" >> .env
+bash deploy/deploy.sh
+```
+
+Escolha um PIN forte e diferente do `1010` das famílias — quem tiver esse PIN controla a identidade visual de todo o produto. O arquivo `.env` não vai pro Git (está no `.gitignore`), fica só na VPS.

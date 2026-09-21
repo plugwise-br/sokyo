@@ -1,6 +1,7 @@
 "use strict";
 const express = require("express");
 const achievementsRepo = require("../repositories/achievements");
+const brandingRepo = require("../repositories/branding");
 const completionsRepo = require("../repositories/completions");
 const reportService = require("../services/reportService");
 const allowanceRepo = require("../repositories/allowance");
@@ -11,6 +12,12 @@ const { familyId } = require("../db");
 const { requireParent, handleGameError } = require("./middleware");
 
 const router = express.Router();
+
+// Publico: todo mundo (crianca, pais, tela de login) le a marca do
+// produto pra pintar a interface - so o super admin edita (ver routes/admin.js).
+router.get("/branding", (req, res) => {
+  res.json(brandingRepo.get());
+});
 
 router.get("/children/:childId/achievements", (req, res) => {
   res.json({
