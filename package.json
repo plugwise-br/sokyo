@@ -1,0 +1,17 @@
+{
+  "name": "sokyo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sokyo (Missao Arthur) - sistema de gamificacao de responsabilidades para criancas",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

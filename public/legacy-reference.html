@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Missão Arthur</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root{
+    --bg:#FBF6EC; --surface:#FFFFFF; --surface-2:#F3ECDC; --ink:#26313A; --ink-dim:#6B7680; --line:#E7DDC7;
+    --primary:#1F8A70; --primary-ink:#F4FFF9; --secondary:#FF6B4A; --gold:#E8940C; --gold-bg:#FFF1D2;
+    --accent:#6C5CE7; --danger:#E1503F; --ok-bg:#E6F5EE; --pending-bg:#FFF1D2;
+    --shadow:0 1px 2px rgba(38,49,58,.06), 0 6px 16px -8px rgba(38,49,58,.18); --radius:18px;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#10171B; --surface:#182226; --surface-2:#1F2B30; --ink:#EDEFEF; --ink-dim:#9AAAB0; --line:#2A363B;
+      --primary:#35C79A; --primary-ink:#08211A; --secondary:#FF8A65; --gold:#FFC15E; --gold-bg:#3A2E12;
+      --accent:#9D8CFF; --danger:#FF7A6B; --ok-bg:#123527; --pending-bg:#3A2E12;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 20px -8px rgba(0,0,0,.5);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink); font-family:'Nunito',sans-serif;
+    padding-inline:16px; padding-block:18px 100px;
+  }
+  h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
+  img{max-width:100%}
+  .wrap{max-width:640px; margin:0 auto; display:flex; flex-direction:column; gap:16px}
+
+  .topbar{
+    background:linear-gradient(135deg, var(--primary), #14634F);
+    color:var(--primary-ink); border-radius:var(--radius); padding:16px;
+    box-shadow:var(--shadow); position:relative; overflow:hidden;
+  }
+  @media (prefers-color-scheme: dark){ .topbar{ background:linear-gradient(135deg, #1E5F4E, #0E332A); } }
+  .topbar::after{
+    content:""; position:absolute; right:-30px; top:-30px; width:140px; height:140px;
+    background:radial-gradient(circle, rgba(255,255,255,.16), transparent 70%); border-radius:50%;
+  }
+  .topbar-row{display:flex; align-items:center; justify-content:space-between; gap:10px; position:relative; z-index:1}
+  .hero{display:flex; align-items:center; gap:12px}
+  .avatar{
+    width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.18);
+    display:flex; align-items:center; justify-content:center; font-size:26px; flex:none;
+    border:2px solid rgba(255,255,255,.5);
+  }
+  .hero-name{font-family:'Baloo 2'; font-weight:800; font-size:1.25rem; line-height:1.1}
+  .hero-sub{font-size:.82rem; opacity:.85; font-weight:700}
+  .mode-toggle{
+    background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.4); color:var(--primary-ink);
+    border-radius:999px; padding:7px 13px; font-family:'Nunito'; font-weight:800; font-size:.78rem; cursor:pointer;
+  }
+  .xp-row{margin-top:14px; position:relative; z-index:1}
+  .xp-track{height:10px; border-radius:999px; background:rgba(255,255,255,.22); overflow:hidden}
+  .xp-fill{height:100%; background:var(--gold); border-radius:999px; transition:width .4s ease}
+  .xp-label{display:flex; justify-content:space-between; font-size:.72rem; font-weight:800; margin-top:5px; opacity:.9}
+
+  .stat-row{display:flex; gap:10px; margin-top:14px; position:relative; z-index:1}
+  .stat-pill{flex:1; background:rgba(255,255,255,.14); border-radius:14px; padding:9px 10px; display:flex; align-items:center; gap:7px; font-weight:800}
+  .stat-pill .n{font-size:1.05rem; font-family:'Baloo 2'}
+  .stat-pill .l{font-size:.66rem; opacity:.85; display:block; font-weight:700}
+
+  .tabs{display:flex; gap:6px; background:var(--surface-2); padding:5px; border-radius:14px; overflow-x:auto}
+  .tab{flex:1; text-align:center; padding:9px 4px; border-radius:10px; border:none; background:transparent; color:var(--ink-dim); font-weight:800; font-family:'Nunito'; font-size:.82rem; cursor:pointer; white-space:nowrap}
+  .tab.active{background:var(--surface); color:var(--primary); box-shadow:var(--shadow)}
+
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow)}
+  .card h2{margin:0 0 3px; font-size:1.05rem}
+  .muted{color:var(--ink-dim); font-size:.85rem; margin:0}
+
+  .task{display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--line)}
+  .task:last-child{border-bottom:none}
+  .task-icon{width:42px; height:42px; border-radius:12px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:20px; flex:none}
+  .task-body{flex:1; min-width:0}
+  .task-name{font-weight:800; font-size:.94rem}
+  .task-coins{color:var(--gold); font-weight:800; font-size:.78rem}
+  .task-btn{flex:none; border:none; border-radius:12px; padding:9px 14px; font-weight:800; font-family:'Nunito'; font-size:.8rem; cursor:pointer; background:var(--primary); color:var(--primary-ink)}
+  .task-btn[disabled]{opacity:.5; cursor:not-allowed}
+  .badge{flex:none; font-size:.72rem; font-weight:800; padding:6px 10px; border-radius:999px}
+  .badge.pending{background:var(--pending-bg); color:var(--gold)}
+  .badge.approved{background:var(--ok-bg); color:var(--primary)}
+  .badge.rejected{background:var(--surface-2); color:var(--danger)}
+
+  .goal{padding:12px 4px; border-bottom:1px solid var(--line)}
+  .goal:last-child{border-bottom:none}
+  .goal-top{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:7px}
+  .goal-name{font-weight:800; display:flex; gap:8px; align-items:center}
+  .goal-target{font-size:.78rem; color:var(--ink-dim); font-weight:700}
+  .bar-track{height:9px; background:var(--surface-2); border-radius:999px; overflow:hidden}
+  .bar-fill{height:100%; background:linear-gradient(90deg, var(--gold), var(--secondary)); border-radius:999px; transition:width .4s ease}
+
+  .empty{padding:22px 6px; text-align:center; color:var(--ink-dim); font-size:.88rem}
+  .row{display:flex; gap:8px}
+  input[type=text], input[type=number], input[type=password]{
+    width:100%; padding:10px 11px; border-radius:10px; border:1px solid var(--line); background:var(--surface-2);
+    color:var(--ink); font-family:'Nunito'; font-size:.88rem; font-weight:700;
+  }
+  label{font-size:.72rem; font-weight:800; color:var(--ink-dim); display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.03em}
+  select{padding:9px 10px; border-radius:10px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font-family:'Nunito'; font-size:.82rem; font-weight:700}
+  .pillar-head{font-family:'Baloo 2'; font-weight:800; font-size:.98rem; margin-bottom:4px}
+  .field{flex:1}
+  .btn{border:none; border-radius:12px; padding:11px 16px; font-weight:800; font-family:'Nunito'; font-size:.85rem; cursor:pointer}
+  .btn-primary{background:var(--primary); color:var(--primary-ink)}
+  .btn-ghost{background:var(--surface-2); color:var(--ink)}
+  .btn[disabled]{opacity:.45; cursor:not-allowed}
+
+  .pending-row{display:flex; align-items:center; gap:10px; padding:12px 4px; border-bottom:1px solid var(--line)}
+  .pending-row:last-child{border-bottom:none}
+  .icon-btn{width:38px;height:38px;border-radius:10px;border:none;font-size:16px;cursor:pointer;flex:none}
+  .icon-btn.ok{background:var(--ok-bg); color:var(--primary)}
+  .icon-btn.no{background:var(--surface-2); color:var(--danger)}
+
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:20px; z-index:50}
+  .modal{background:var(--surface); border-radius:var(--radius); padding:20px; width:100%; max-width:320px; box-shadow:var(--shadow)}
+  .modal h3{margin:0 0 4px}
+
+  .catalog-item{display:flex; align-items:center; gap:8px; padding:10px 4px; border-bottom:1px solid var(--line); flex-wrap:wrap}
+  .catalog-item:last-child{border-bottom:none}
+  .catalog-item input[type=text]{width:auto; flex:1 1 130px}
+  .catalog-item input.icon-input{width:40px; flex:none; text-align:center; padding:10px 4px}
+  .catalog-item input[type=number]{width:56px}
+  .catalog-item select{flex:none; width:auto; max-width:150px}
+  .toggle-active{width:20px;height:20px;flex:none}
+
+  .footer-note{text-align:center; color:var(--ink-dim); font-size:.72rem; padding-top:4px}
+  .section-title{font-family:'Baloo 2'; font-size:1rem; margin:0 0 2px}
+  .week-total{display:flex; align-items:baseline; gap:6px; margin:6px 0 14px}
+  .week-total .v{font-family:'Baloo 2'; font-size:1.7rem; color:var(--gold)}
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:var(--bg);
+    padding:10px 16px; border-radius:12px; font-weight:800; font-size:.82rem; z-index:60; box-shadow:var(--shadow);
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="modal-root"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PILLARS_FALLBACK = [
+    {id:"casa", name:"Casa", icon:"🏠", color:"#1F8A70"},
+    {id:"escola", name:"Escola", icon:"📚", color:"#6C5CE7"},
+    {id:"esportes", name:"Esportes", icon:"⚽", color:"#FF6B4A"},
+    {id:"alimentacao", name:"Alimentação", icon:"🥗", color:"#2E9E4F"},
+    {id:"familia", name:"Família", icon:"👨‍👩‍👦", color:"#E1503F"},
+    {id:"lazer", name:"Lazer", icon:"🎮", color:"#9D5CE7"},
+    {id:"espiritualidade", name:"Espiritualidade", icon:"🙏", color:"#E8940C"}
+  ];
+  var PILLAR_COLORS = {};
+  PILLARS_FALLBACK.forEach(function(p){ PILLAR_COLORS[p.id] = p.color; });
+  var PILLARS = PILLARS_FALLBACK;
+
+  var DOW = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+  var DOW_SHORT = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+  function fmtBRL(v){ return "R$ " + v.toFixed(2).replace(".", ","); }
+  function esc(s){ var d = document.createElement("div"); d.textContent = (s==null? "" : String(s)); return d.innerHTML; }
+  function keyToLocalDate(key){ var p = key.split("-").map(Number); return new Date(p[0], p[1]-1, p[2]); }
+
+  var TOKEN_KEY = "missaoArthur.token";
+  function getToken(){ try{ return localStorage.getItem(TOKEN_KEY); }catch(e){ return null; } }
+  function setToken(t){ try{ if(t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); }catch(e){} }
+
+  var mode = "arthur"; // arthur | pais
+  var tab = "hoje";
+  var pinModalOpen = false;
+  var loading = true;
+  var data = { state:null, catalog:[], goals:[], logs:[], ledger:[], today:"", weekStart:"" };
+
+  var root = document.getElementById("app");
+  var modalRoot = document.getElementById("modal-root");
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200);
+  }
+
+  // ---------- API layer ----------
+  function api(path, opts){
+    opts = opts || {};
+    var headers = Object.assign({"Content-Type":"application/json"}, opts.headers||{});
+    var token = getToken();
+    if(token) headers.Authorization = "Bearer " + token;
+    return fetch("/api"+path, {
+      method: opts.method || "GET",
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function(res){
+      if(res.status===401){
+        setToken(null);
+        if(mode==="pais"){ mode="arthur"; tab="hoje"; toast("Sessão expirada, entre novamente."); }
+      }
+      return res.json().catch(function(){return {};}).then(function(json){
+        if(!res.ok) throw Object.assign(new Error(json.error||"erro"), {code: json.error, status: res.status});
+        return json;
+      });
+    });
+  }
+
+  function refresh(){
+    return api("/data").then(function(json){
+      data = json;
+      if(json.pillars && json.pillars.length) PILLARS = json.pillars.map(function(p){
+        return Object.assign({}, p, {color: PILLAR_COLORS[p.id] || "#1F8A70"});
+      });
+      loading = false;
+      render();
+    }).catch(function(){ loading=false; render(); });
+  }
+
+  function logsToday(){ return data.logs.filter(function(l){ return l.date===data.today; }); }
+  function logsWeek(){ return data.logs.filter(function(l){ return l.date >= data.weekStart; }); }
+  function pendingAll(){
+    return data.logs.filter(function(l){ return l.status==="pending"; })
+      .sort(function(a,b){ return (a.requestedAt||"").localeCompare(b.requestedAt||""); });
+  }
+  function logForTask(taskId){ return logsToday().find(function(l){ return l.taskId===taskId; }); }
+
+  // ---------- render ----------
+  function render(){
+    if(loading){ root.innerHTML = '<div class="card empty">Carregando missão... 🧭</div>'; return; }
+    var st = data.state;
+    if(!st){ root.innerHTML = '<div class="card empty">Não foi possível conectar ao servidor. Verifique sua internet.</div>'; return; }
+    var balance = st.totalEarned - st.totalRedeemed;
+    var level = Math.floor(st.totalEarned/100)+1;
+    var xpInLevel = st.totalEarned % 100;
+
+    var html = "";
+    html += headerHtml(st, balance, level, xpInLevel);
+    html += tabsHtml();
+
+    if(mode==="arthur"){
+      if(tab==="hoje") html += tabHojeHtml();
+      else if(tab==="personagem") html += tabPersonagemHtml(st);
+      else if(tab==="recompensas") html += tabRecompensasHtml(balance);
+      else if(tab==="diario") html += tabDiarioHtml();
+    } else {
+      if(tab==="validar") html += tabValidarHtml();
+      else if(tab==="fechar") html += tabFecharSemanaHtml(st);
+      else if(tab==="missoes") html += tabMissoesConfigHtml();
+      else if(tab==="premios") html += tabPremiosConfigHtml();
+    }
+
+    html += '<p class="footer-note">Feito com carinho para o Arthur 💛</p>';
+    root.innerHTML = html;
+    bindEvents();
+    renderModal();
+  }
+
+  function headerHtml(st, balance, level, xpInLevel){
+    return ''+
+    '<div class="topbar">'+
+      '<div class="topbar-row">'+
+        '<div class="hero">'+
+          '<div class="avatar">🦸</div>'+
+          '<div>'+
+            '<div class="hero-name">'+(mode==="arthur"?"Missão Arthur":"Painel dos Pais")+'</div>'+
+            '<div class="hero-sub">Nível '+level+(mode==="arthur"?' · Aventureiro':' · Validação e ajustes')+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<button class="mode-toggle" data-action="toggle-mode">'+(mode==="arthur"?"👪 Modo pais":"🧒 Modo Arthur")+'</button>'+
+      '</div>'+
+      (mode==="arthur" ? (''+
+      '<div class="xp-row">'+
+        '<div class="xp-track"><div class="xp-fill" style="width:'+xpInLevel+'%"></div></div>'+
+        '<div class="xp-label"><span>XP do nível '+level+'</span><span>'+xpInLevel+'/100</span></div>'+
+      '</div>') : '')+
+      '<div class="stat-row">'+
+        '<div class="stat-pill">🪙 <div><span class="n">'+balance+'</span><span class="l">moedas</span></div></div>'+
+        '<div class="stat-pill">🔥 <div><span class="n">'+(st.streak||0)+'</span><span class="l">dias seguidos</span></div></div>'+
+        '<div class="stat-pill">💰 <div><span class="n">'+fmtBRL(balance*(st.settings.coinValue||0))+'</span><span class="l">valor em moedas</span></div></div>'+
+      '</div>'+
+    '</div>';
+  }
+
+  function tabsHtml(){
+    var tabs = mode==="arthur"
+      ? [["hoje","Hoje"],["personagem","Personagem"],["recompensas","Recompensas"],["diario","Diário"]]
+      : [["validar","Validar"],["fechar","Fechar semana"],["missoes","Missões"],["premios","Prêmios"]];
+    var html = '<div class="tabs">';
+    tabs.forEach(function(t){
+      html += '<button class="tab '+(tab===t[0]?'active':'')+'" data-action="tab" data-tab="'+t[0]+'">'+t[1]+'</button>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function tabHojeHtml(){
+    var d = keyToLocalDate(data.today || new Date().toISOString().slice(0,10));
+    var html = '<div class="card">';
+    html += '<h2 class="section-title">'+DOW[d.getDay()]+', missões de hoje</h2>';
+    html += '<p class="muted">Marque o que você já fez. Um responsável precisa validar antes das moedas caírem na sua conta.</p>';
+    html += '</div>';
+
+    var active = data.catalog.filter(function(t){return t.active;});
+    if(active.length===0){
+      html += '<div class="card"><div class="empty">Nenhuma missão cadastrada ainda. Peça para um adulto configurar em "Modo pais".</div></div>';
+      return html;
+    }
+    var todayLogs = logsToday();
+    PILLARS.forEach(function(p){
+      var items = active.filter(function(t){return (t.category||"casa")===p.id;}).sort(function(a,b){return a.order-b.order;});
+      if(items.length===0) return;
+      html += '<div class="card">';
+      html += '<div class="pillar-head" style="color:'+p.color+'">'+p.icon+' '+p.name+'</div>';
+      items.forEach(function(t){
+        var log = todayLogs.find(function(l){return l.taskId===t.id;});
+        html += '<div class="task">';
+        html += '<div class="task-icon">'+t.icon+'</div>';
+        html += '<div class="task-body"><div class="task-name">'+esc(t.name)+'</div><div class="task-coins">+'+t.coins+' moedas</div></div>';
+        if(!log){
+          html += '<button class="task-btn" data-action="checkin" data-task="'+t.id+'">Concluí!</button>';
+        } else if(log.status==="pending"){
+          html += '<span class="badge pending">Aguardando</span>';
+        } else if(log.status==="approved"){
+          html += '<span class="badge approved">Validado ✓</span>';
+        } else {
+          html += '<span class="badge rejected">Não validado</span>';
+        }
+        html += '</div>';
+      });
+      html += '</div>';
+    });
+    return html;
+  }
+
+  function tabPersonagemHtml(st){
+    var pillarXP = st.pillarXP || {};
+    var html = '<div class="card">';
+    html += '<h2 class="section-title">Seu personagem</h2>';
+    html += '<p class="muted">Cada área da sua vida é um atributo. Ele cresce quando você cumpre as missões daquele grupo.</p>';
+    html += '</div>';
+    html += '<div class="card">';
+    PILLARS.forEach(function(p){
+      var xp = pillarXP[p.id]||0;
+      var level = Math.floor(xp/30)+1;
+      var pct = (xp%30)/30*100;
+      html += '<div class="goal">';
+      html += '<div class="goal-top"><span class="goal-name">'+p.icon+' '+p.name+'</span><span class="goal-target">Nível '+level+'</span></div>';
+      html += '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%; background:'+p.color+'"></div></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function tabRecompensasHtml(balance){
+    var html = '<div class="card">';
+    html += '<h2 class="section-title">Suas recompensas</h2>';
+    html += '<p class="muted">Junte moedas fazendo suas missões para desbloquear os prêmios.</p>';
+    html += '</div>';
+    html += '<div class="card">';
+    var goals = data.goals.slice().sort(function(a,b){return a.order-b.order;});
+    if(goals.length===0){
+      html += '<div class="empty">Nenhuma recompensa cadastrada ainda.</div>';
+    } else {
+      goals.forEach(function(g){
+        var pct = Math.max(0, Math.min(100, Math.round((balance/g.targetCoins)*100)));
+        html += '<div class="goal">';
+        html += '<div class="goal-top"><span class="goal-name">'+g.icon+' '+esc(g.name)+'</span><span class="goal-target">'+balance+' / '+g.targetCoins+'</span></div>';
+        html += '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>';
+        html += '</div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function tabDiarioHtml(){
+    var weekStart = keyToLocalDate(data.weekStart);
+    var days = [];
+    for(var i=0;i<7;i++){ var d = new Date(weekStart); d.setDate(d.getDate()+i); days.push(d); }
+    var week = logsWeek();
+    var approvedThisWeek = week.filter(function(l){return l.status==="approved";});
+    var coinsWeek = approvedThisWeek.reduce(function(s,l){return s+l.coins;},0);
+
+    var html = '<div class="card">';
+    html += '<h2 class="section-title">Sua semana</h2>';
+    html += '<div class="week-total"><span class="v">'+coinsWeek+'</span><span class="muted">moedas ganhas essa semana</span></div>';
+    html += '<div class="row" style="gap:6px; flex-wrap:wrap">';
+    days.forEach(function(d){
+      var key = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+      var count = week.filter(function(l){return l.date===key && l.status==="approved";}).length;
+      var isToday = key===data.today;
+      html += '<div style="flex:1; min-width:38px; text-align:center; padding:8px 2px; border-radius:10px; background:'+(isToday?'var(--ok-bg)':'var(--surface-2)')+'">'+
+        '<div style="font-size:.68rem; font-weight:800; color:var(--ink-dim)">'+DOW_SHORT[d.getDay()]+'</div>'+
+        '<div style="font-family:\'Baloo 2\'; font-weight:800; font-size:1rem">'+count+'</div>'+
+      '</div>';
+    });
+    html += '</div></div>';
+
+    html += '<div class="card">';
+    html += '<h2 class="section-title">Histórico de moedas</h2>';
+    if(data.ledger.length===0){
+      html += '<div class="empty">Ainda não houve pagamentos ou trocas.</div>';
+    } else {
+      data.ledger.slice(0,15).forEach(function(l){
+        html += '<div class="task"><div class="task-body"><div class="task-name">'+esc(l.note)+'</div><div class="muted" style="margin-top:2px">'+esc(l.date)+'</div></div>'+
+          '<div style="font-weight:800; color:'+(l.coinsDelta<0?'var(--danger)':'var(--primary)')+'">'+(l.coinsDelta<0?"":"+")+l.coinsDelta+' 🪙</div></div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function tabValidarHtml(){
+    var html = '<div class="card">';
+    html += '<h2 class="section-title">Missões para validar</h2>';
+    html += '<p class="muted">Confira o que o Arthur marcou como feito hoje.</p>';
+    html += '</div>';
+    html += '<div class="card">';
+    var pending = pendingAll();
+    if(pending.length===0){
+      html += '<div class="empty">Nada pendente agora. 🎉</div>';
+    } else {
+      pending.forEach(function(l){
+        html += '<div class="pending-row">';
+        html += '<div class="task-icon">'+(l.icon||'✅')+'</div>';
+        html += '<div class="task-body"><div class="task-name">'+esc(l.taskName)+'</div><div class="muted">'+esc(l.date)+' · +'+l.coins+' moedas</div></div>';
+        html += '<button class="icon-btn ok" data-action="approve" data-log="'+l.id+'">✓</button>';
+        html += '<button class="icon-btn no" data-action="reject" data-log="'+l.id+'">✕</button>';
+        html += '</div>';
+      });
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function tabFecharSemanaHtml(st){
+    var week = logsWeek();
+    var approvedThisWeek = week.filter(function(l){return l.status==="approved";});
+    var coinsWeek = approvedThisWeek.reduce(function(s,l){return s+l.coins;},0);
+    var already = data.ledger.some(function(l){return l.type==="mesada" && l.weekKey===data.weekStart;});
+    var valor = coinsWeek*(st.settings.coinValue||0) + (st.settings.weeklyBase||0);
+
+    var html = '<div class="card">';
+    html += '<h2 class="section-title">Fechar a semana</h2>';
+    html += '<p class="muted">Semana de '+data.weekStart+'. Confirme para transformar as moedas em mesada — isso não retira as moedas guardadas para as recompensas grandes.</p>';
+    html += '<div class="week-total"><span class="v">'+coinsWeek+'</span><span class="muted">moedas validadas essa semana</span></div>';
+    html += '<p style="font-weight:800; font-size:1.2rem; font-family:\'Baloo 2\'; color:var(--primary)">'+fmtBRL(valor)+'</p>';
+    if(already){
+      html += '<div class="badge approved" style="display:inline-block">Mesada já paga essa semana ✓</div>';
+    } else {
+      html += '<button class="btn btn-primary" data-action="pay-week" '+(coinsWeek===0?'disabled':'')+'>Pagar mesada da semana</button>';
+    }
+    html += '</div>';
+
+    html += '<div class="card">';
+    html += '<h2 class="section-title">Configurações da mesada</h2>';
+    html += '<div class="row" style="margin-top:8px">';
+    html += '<div class="field"><label>Valor por moeda (R$)</label><input type="number" step="0.01" min="0" id="cfg-coinvalue" value="'+(st.settings.coinValue||0)+'"></div>';
+    html += '<div class="field"><label>Base fixa semanal (R$)</label><input type="number" step="0.01" min="0" id="cfg-weeklybase" value="'+(st.settings.weeklyBase||0)+'"></div>';
+    html += '</div>';
+    html += '<div style="margin-top:12px"><button class="btn btn-ghost" data-action="save-settings">Salvar</button></div>';
+    html += '</div>';
+
+    html += '<div class="card">';
+    html += '<h2 class="section-title">Trocar PIN dos pais</h2>';
+    html += '<div class="row" style="margin-top:8px">';
+    html += '<div class="field"><label>Novo PIN</label><input type="text" inputmode="numeric" id="cfg-pin" placeholder="Digite o novo PIN"></div>';
+    html += '</div>';
+    html += '<div style="margin-top:12px"><button class="btn btn-ghost" data-action="save-pin">Salvar PIN</button></div>';
+    html += '</div>';
+    return html;
+  }
+
+  function pillarOptionsHtml(selected){
+    return PILLARS.map(function(p){
+      return '<option value="'+p.id+'" '+(p.id===selected?'selected':'')+'>'+p.icon+' '+p.name+'</option>';
+    }).join('');
+  }
+
+  function tabMissoesConfigHtml(){
+    var html = '<div class="card">';
+    html += '<h2 class="section-title">Missões diárias</h2>';
+    html += '<p class="muted">Ative, edite as moedas, mude a área (atributo) ou desative missões.</p>';
+    html += '</div>';
+
+    PILLARS.forEach(function(p){
+      var items = data.catalog.filter(function(t){return (t.category||"casa")===p.id;}).sort(function(a,b){return a.order-b.order;});
+      html += '<div class="card">';
+      html += '<div class="pillar-head" style="color:'+p.color+'">'+p.icon+' '+p.name+'</div>';
+      if(items.length===0){
+        html += '<div class="empty">Nenhuma missão nessa área ainda.</div>';
+      } else {
+        items.forEach(function(t){
+          html += '<div class="catalog-item">';
+          html += '<input type="text" class="icon-input" data-cat="'+t.id+'" data-field="icon" value="'+esc(t.icon)+'">';
+          html += '<input type="text" data-cat="'+t.id+'" data-field="name" value="'+esc(t.name)+'">';
+          html += '<input type="number" min="1" data-cat="'+t.id+'" data-field="coins" value="'+t.coins+'">';
+          html += '<select data-cat="'+t.id+'" data-field="category">'+pillarOptionsHtml(t.category||"casa")+'</select>';
+          html += '<input type="checkbox" class="toggle-active" data-cat="'+t.id+'" data-field="active" '+(t.active?'checked':'')+'>';
+          html += '<button class="icon-btn no" data-action="delete-task" data-task="'+t.id+'" title="Excluir missão">✕</button>';
+          html += '</div>';
+        });
+      }
+      html += '</div>';
+    });
+
+    html += '<div class="card">';
+    html += '<h2 class="section-title">Nova missão</h2>';
+    html += '<div class="row" style="margin-top:8px; flex-wrap:wrap">';
+    html += '<div style="width:52px"><input type="text" class="icon-input" id="new-task-icon" placeholder="⭐" value="⭐"></div>';
+    html += '<div class="field" style="min-width:140px"><input type="text" id="new-task-name" placeholder="Nome da missão"></div>';
+    html += '<div style="width:64px"><input type="number" id="new-task-coins" placeholder="🪙" min="1" value="2"></div>';
+    html += '</div>';
+    html += '<div style="margin-top:8px"><select id="new-task-category" style="width:100%">'+pillarOptionsHtml("casa")+'</select></div>';
+    html += '<div style="margin-top:10px"><button class="btn btn-primary" data-action="add-task">Adicionar missão</button></div>';
+    html += '</div>';
+    return html;
+  }
+
+  function tabPremiosConfigHtml(){
+    var html = '<div class="card">';
+    html += '<h2 class="section-title">Recompensas / metas</h2>';
+    html += '<p class="muted">Cadastre prêmios que o Arthur pode desbloquear juntando moedas.</p>';
+    html += '</div>';
+    html += '<div class="card">';
+    var list = data.goals.slice().sort(function(a,b){return a.order-b.order;});
+    if(list.length===0){
+      html += '<div class="empty">Nenhuma recompensa cadastrada.</div>';
+    } else {
+      list.forEach(function(g){
+        html += '<div class="catalog-item">';
+        html += '<input type="text" class="icon-input" data-goal="'+g.id+'" data-field="icon" value="'+esc(g.icon)+'">';
+        html += '<input type="text" data-goal="'+g.id+'" data-field="name" value="'+esc(g.name)+'">';
+        html += '<input type="number" min="1" data-goal="'+g.id+'" data-field="targetCoins" value="'+g.targetCoins+'" style="width:80px">';
+        html += '<button class="icon-btn no" data-action="delete-goal" data-goal="'+g.id+'" title="Excluir recompensa">✕</button>';
+        html += '</div>';
+      });
+    }
+    html += '<div style="margin-top:14px" class="row">';
+    html += '<div style="width:52px"><input type="text" class="icon-input" id="new-goal-icon" placeholder="🏆" value="🏆"></div>';
+    html += '<div class="field"><input type="text" id="new-goal-name" placeholder="Nova recompensa"></div>';
+    html += '<div style="width:90px"><input type="number" id="new-goal-target" placeholder="moedas" min="1" value="100"></div>';
+    html += '</div>';
+    html += '<div style="margin-top:10px"><button class="btn btn-primary" data-action="add-goal">Adicionar recompensa</button></div>';
+    html += '</div>';
+    return html;
+  }
+
+  function renderModal(){
+    if(!pinModalOpen){ modalRoot.innerHTML = ""; return; }
+    modalRoot.innerHTML = ''+
+    '<div class="overlay" data-action="close-pin-overlay">'+
+      '<div class="modal" onclick="event.stopPropagation()">'+
+        '<h3>👪 Modo pais</h3>'+
+        '<p class="muted" style="margin-bottom:12px">Digite o PIN para validar missões e ajustar as configurações.</p>'+
+        '<input type="password" inputmode="numeric" id="pin-input" placeholder="PIN">'+
+        '<div id="pin-error" style="color:var(--danger); font-size:.78rem; font-weight:800; min-height:18px; margin-top:6px"></div>'+
+        '<div class="row" style="margin-top:10px">'+
+          '<button class="btn btn-ghost field" data-action="close-pin">Cancelar</button>'+
+          '<button class="btn btn-primary field" data-action="submit-pin">Entrar</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+    var overlay = modalRoot.querySelector(".overlay");
+    overlay.addEventListener("click", function(){ pinModalOpen=false; renderModal(); });
+    var input = document.getElementById("pin-input");
+    input.addEventListener("keydown", function(e){ if(e.key==="Enter") submitPin(); });
+    setTimeout(function(){ input.focus(); }, 30);
+  }
+
+  function submitPin(){
+    var val = document.getElementById("pin-input").value;
+    var btn = document.querySelector('[data-action="submit-pin"]');
+    if(btn) btn.disabled = true;
+    api("/auth/login", {method:"POST", body:{pin: val}}).then(function(res){
+      setToken(res.token);
+      pinModalOpen = false; mode = "pais"; tab = "validar"; render();
+    }).catch(function(err){
+      if(btn) btn.disabled = false;
+      var msg = err.code==="too_many_attempts" ? "Muitas tentativas, aguarde alguns minutos." : "PIN incorreto, tente de novo.";
+      var el = document.getElementById("pin-error");
+      if(el) el.textContent = msg;
+    });
+  }
+
+  // ---------- events ----------
+  function bindEvents(){ root.addEventListener("click", onClick); }
+
+  function onClick(e){
+    var el = e.target.closest("[data-action]");
+    if(!el) return;
+    var action = el.getAttribute("data-action");
+
+    if(action==="toggle-mode"){
+      if(mode==="arthur"){ pinModalOpen = true; renderModal(); }
+      else { mode = "arthur"; tab = "hoje"; render(); }
+      return;
+    }
+    if(action==="tab"){ tab = el.getAttribute("data-tab"); render(); return; }
+    if(action==="checkin"){ checkin(el); return; }
+    if(action==="approve"){ resolveLog(el.getAttribute("data-log"), "approved"); return; }
+    if(action==="reject"){ resolveLog(el.getAttribute("data-log"), "rejected"); return; }
+    if(action==="pay-week"){ payWeek(); return; }
+    if(action==="save-settings"){ saveSettings(); return; }
+    if(action==="save-pin"){ savePin(); return; }
+    if(action==="add-task"){ addTask(); return; }
+    if(action==="delete-task"){ deleteTask(el.getAttribute("data-task")); return; }
+    if(action==="add-goal"){ addGoal(); return; }
+    if(action==="delete-goal"){ deleteGoal(el.getAttribute("data-goal")); return; }
+    if(action==="close-pin"){ pinModalOpen=false; renderModal(); return; }
+    if(action==="submit-pin"){ submitPin(); return; }
+  }
+
+  root.addEventListener("change", function(e){
+    var t = e.target;
+    if(t.matches("[data-cat]")) updateCatalogField(t);
+    if(t.matches("[data-goal]")) updateGoalField(t);
+  });
+
+  function updateCatalogField(t){
+    var id = t.getAttribute("data-cat");
+    var field = t.getAttribute("data-field");
+    var body = {};
+    body[field] = field==="active" ? t.checked : t.value;
+    api("/tasks/"+id, {method:"PUT", body:body}).then(refresh).catch(function(){ toast("Não foi possível salvar."); refresh(); });
+  }
+  function updateGoalField(t){
+    var id = t.getAttribute("data-goal");
+    var field = t.getAttribute("data-field");
+    var body = {};
+    body[field] = t.value;
+    api("/goals/"+id, {method:"PUT", body:body}).then(refresh).catch(function(){ toast("Não foi possível salvar."); refresh(); });
+  }
+
+  function checkin(btn){
+    var taskId = btn.getAttribute("data-task");
+    btn.disabled = true; btn.textContent = "Enviando...";
+    api("/checkin", {method:"POST", body:{taskId:taskId}}).then(refresh).catch(function(){
+      toast("Não foi possível enviar. Verifique a internet.");
+      refresh();
+    });
+  }
+
+  function resolveLog(logId, status){
+    api("/resolve", {method:"POST", body:{logId:logId, status:status}}).then(refresh).catch(function(){
+      toast("Não foi possível registrar."); refresh();
+    });
+  }
+
+  function payWeek(){
+    api("/pay-week", {method:"POST"}).then(function(){ toast("Mesada da semana registrada!"); refresh(); })
+      .catch(function(err){
+        if(err.code==="already_paid") toast("A mesada dessa semana já foi paga.");
+        else toast("Não foi possível pagar a mesada.");
+        refresh();
+      });
+  }
+
+  function saveSettings(){
+    var coinValue = parseFloat(document.getElementById("cfg-coinvalue").value)||0;
+    var weeklyBase = parseFloat(document.getElementById("cfg-weeklybase").value)||0;
+    api("/settings", {method:"PUT", body:{coinValue:coinValue, weeklyBase:weeklyBase}}).then(function(){
+      toast("Configurações salvas."); refresh();
+    }).catch(function(){ toast("Não foi possível salvar."); });
+  }
+
+  function savePin(){
+    var pin = document.getElementById("cfg-pin").value.trim();
+    if(!pin) return;
+    api("/pin", {method:"PUT", body:{newPin:pin}}).then(function(){
+      toast("PIN atualizado."); document.getElementById("cfg-pin").value="";
+    }).catch(function(){ toast("Não foi possível trocar o PIN."); });
+  }
+
+  function addTask(){
+    var name = document.getElementById("new-task-name").value.trim();
+    if(!name) return;
+    var coins = document.getElementById("new-task-coins").value;
+    var icon = document.getElementById("new-task-icon").value.trim() || "⭐";
+    var category = document.getElementById("new-task-category").value;
+    api("/tasks", {method:"POST", body:{name:name, coins:coins, icon:icon, category:category}}).then(function(){
+      refresh();
+    }).catch(function(){ toast("Não foi possível criar a missão."); });
+  }
+  function deleteTask(id){
+    var task = data.catalog.find(function(t){return t.id===id;});
+    if(!window.confirm('Excluir a missão "'+(task?task.name:'')+'"? Essa ação não pode ser desfeita.')) return;
+    api("/tasks/"+id, {method:"DELETE"}).then(refresh).catch(function(){ toast("Não foi possível excluir."); });
+  }
+
+  function addGoal(){
+    var name = document.getElementById("new-goal-name").value.trim();
+    if(!name) return;
+    var target = document.getElementById("new-goal-target").value;
+    var icon = document.getElementById("new-goal-icon").value.trim() || "🏆";
+    api("/goals", {method:"POST", body:{name:name, targetCoins:target, icon:icon}}).then(function(){
+      refresh();
+    }).catch(function(){ toast("Não foi possível criar a recompensa."); });
+  }
+  function deleteGoal(id){
+    var goal = data.goals.find(function(g){return g.id===id;});
+    if(!window.confirm('Excluir a recompensa "'+(goal?goal.name:'')+'"? Essa ação não pode ser desfeita.')) return;
+    api("/goals/"+id, {method:"DELETE"}).then(refresh).catch(function(){ toast("Não foi possível excluir."); });
+  }
+
+  // ---------- boot ----------
+  render();
+  refresh();
+  setInterval(refresh, 5000);
+  window.addEventListener("focus", refresh);
+})();
+</script>
+</body>
+</html>
