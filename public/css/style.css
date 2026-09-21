@@ -155,6 +155,23 @@ select{padding:9px 10px; border-radius:10px; border:1px solid var(--line); backg
 .child-chip{border:1px solid var(--line); background:var(--surface-2); border-radius:999px; padding:6px 12px; font-weight:800; font-size:.78rem; cursor:pointer}
 .child-chip.active{background:var(--primary); color:var(--primary-ink); border-color:var(--primary)}
 
+.child-profile-edit{display:flex; align-items:center; gap:14px; margin:10px 0}
+.avatar-big{
+  width:64px; height:64px; border-radius:50%; font-size:32px; flex:none; cursor:pointer;
+  background:var(--surface-2); border:2px solid var(--line); display:flex; align-items:center; justify-content:center;
+}
+.avatar-big:hover{border-color:var(--primary)}
+.avatar-picker{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(44px,1fr)); gap:8px;
+  background:var(--surface-2); border-radius:14px; padding:10px; margin-bottom:12px;
+}
+.avatar-option{
+  width:44px; height:44px; border-radius:12px; font-size:22px; border:2px solid transparent;
+  background:var(--surface); cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.avatar-option.selected{border-color:var(--primary); background:var(--ok-bg)}
+.avatar-option:hover{border-color:var(--primary)}
+
 .cat-bar-row{display:flex; align-items:center; gap:8px; margin-bottom:8px}
 .cat-bar-label{width:120px; font-size:.76rem; font-weight:800; flex:none; display:flex; align-items:center; gap:4px}
 .cat-bar-track{flex:1; height:10px; background:var(--surface-2); border-radius:999px; overflow:hidden}

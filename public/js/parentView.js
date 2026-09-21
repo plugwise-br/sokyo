@@ -4,6 +4,9 @@ import { getBranding } from "./branding.js";
 
 const TABS = [["dashboard", "Painel"], ["tarefas", "Missões"], ["aprovacao", "Aprovação"], ["recompensas", "Recompensas"], ["conquistas", "Conquistas"], ["metas", "Metas"], ["mesada", "Mesada"]];
 
+const AVATAR_OPTIONS = ["🦸", "🦸‍♀️", "🧑‍🚀", "🥷", "🧙", "🧜‍♀️", "🦹", "🧑‍🎤", "🐱", "🐶", "🐼", "🦊", "🦁", "🐯", "🐨", "🐸", "🦄", "🐲", "⚽", "🎮", "🚀", "🌟", "🎨", "📚"];
+let openAvatarPicker = null;
+
 function headerHtml() {
   const b = getBranding();
   return `<div class="topbar">
@@ -30,11 +33,15 @@ async function tabDashboard() {
 
   dash.children.forEach((c, i) => {
     const report = reports[i];
+    const pickerOpen = openAvatarPicker === c.id;
     html += `<div class="card">
-      <div class="section-head">Nível ${c.level.level} (${esc(c.level.name)})</div>
-      <div class="list-item" data-child-row="${c.id}" style="padding-left:0; padding-right:0">
-        <input type="text" class="icon-input" data-field="avatar" value="${esc(c.avatar)}" title="Avatar (emoji)">
-        <input type="text" class="grow" data-field="name" value="${esc(c.name)}" title="Nome">
+      <div class="section-head">Perfil · Nível ${c.level.level} (${esc(c.level.name)})</div>
+      <div class="child-profile-edit" data-child-row="${c.id}">
+        <button class="avatar-big" data-action="toggle-avatar-picker" data-id="${c.id}" title="Trocar avatar">${c.avatar}</button>
+        <div class="field"><label>Nome</label><input type="text" data-field="name" value="${esc(c.name)}"></div>
+      </div>
+      <div class="avatar-picker ${pickerOpen ? "" : "hidden"}" id="avatar-picker-${c.id}">
+        ${AVATAR_OPTIONS.map((a) => `<button class="avatar-option ${a === c.avatar ? "selected" : ""}" data-action="pick-avatar" data-id="${c.id}" data-avatar="${a}">${a}</button>`).join("")}
       </div>
       <div class="stat-row" style="position:static; margin:10px 0">
         <div class="stat-pill" style="background:var(--surface-2); color:var(--ink)">⭐ <div><span class="n">${c.xp}</span><span class="l">XP</span></div></div>
@@ -302,6 +309,18 @@ function bindDashboardTab(root, ctx, tab) {
       });
     });
   });
+  root.querySelectorAll('[data-action="toggle-avatar-picker"]').forEach((btn) => btn.addEventListener("click", () => {
+    openAvatarPicker = openAvatarPicker === btn.dataset.id ? null : btn.dataset.id;
+    ctx.setTab(tab);
+  }));
+  root.querySelectorAll('[data-action="pick-avatar"]').forEach((btn) => btn.addEventListener("click", async () => {
+    try {
+      await api.updateChild(btn.dataset.id, { avatar: btn.dataset.avatar });
+      openAvatarPicker = null;
+      ctx.toast("Avatar atualizado.");
+      ctx.setTab(tab);
+    } catch (e) { ctx.toast("Não foi possível salvar."); }
+  }));
 }
 
 function bindTasksTab(root, ctx, tab) {
