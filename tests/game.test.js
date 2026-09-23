@@ -196,3 +196,30 @@ test("regra 12: virar o dia nao mantem tarefa recorrente marcada com status de o
   const { json: pending } = await api("/completions/pending", { token });
   assert.ok(pending.some((c) => c.task_id === task.id && c.date === yesterday));
 });
+
+test("regra 13: aprovar uma tarefa atrasada nao volta o streak no tempo", async () => {
+  const dates = require("../src/util/dates");
+  const completionsRepo = require("../src/repositories/completions");
+  const child = childrenRepo.create(familyId, { name: "Teste13" });
+  const [category] = require("../src/repositories/categories").listByFamily(familyId);
+  const token = await login();
+
+  const taskToday = tasksRepo.create(familyId, { name: "Tarefa de hoje", categoryId: category.id, xp: 5, coins: 1, requiresApproval: false });
+  await api(`/children/${child.id}/tasks/${taskToday.id}/complete`, { method: "POST" });
+
+  let { json: children } = await api("/children");
+  const beforeStreak = children.find((c) => c.id === child.id).streak;
+  assert.equal(beforeStreak.current, 1);
+
+  // uma tarefa de 3 dias atras ficou parada aguardando aprovacao e so agora o pai valida
+  const oldTask = tasksRepo.create(familyId, { name: "Tarefa atrasada", categoryId: category.id, xp: 5, coins: 1, requiresApproval: true });
+  const threeDaysAgo = dates.addDaysKey(dates.todayKey(), -3);
+  const oldCompletion = completionsRepo.create({ taskId: oldTask.id, childId: child.id, date: threeDaysAgo, status: "pending" });
+  await api(`/completions/${oldCompletion.id}/resolve`, { method: "POST", token, body: { status: "approved" } });
+
+  // aprovar o atrasado nao pode "resetar" o streak que ja estava em 1 hoje
+  ({ json: children } = await api("/children"));
+  const afterStreak = children.find((c) => c.id === child.id).streak;
+  assert.equal(afterStreak.current, 1);
+  assert.equal(afterStreak.last_active_date, beforeStreak.last_active_date);
+});

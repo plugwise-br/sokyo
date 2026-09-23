@@ -7,7 +7,11 @@ function get(childId) {
 
 function registerActivity(childId, todayKey, yesterdayKey) {
   const s = get(childId);
-  if (s.last_active_date === todayKey) return s; // já contou hoje
+  if (s.last_active_date === todayKey) return s; // já contou nesse dia
+  // Uma aprovacao atrasada (pai valida uma tarefa de dias atras) nunca pode
+  // "voltar no tempo" o streak - se ja existe atividade mais recente
+  // registrada, essa data antiga e so histórico, nao mexe no streak atual.
+  if (s.last_active_date && todayKey < s.last_active_date) return s;
   const nextCurrent = s.last_active_date === yesterdayKey ? s.current + 1 : 1;
   const nextBest = Math.max(s.best, nextCurrent);
   db.prepare(
