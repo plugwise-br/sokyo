@@ -176,3 +176,23 @@ test("missao epica so libera XP/moedas quando todas as subtarefas estao feitas",
   assert.equal(children.find((c) => c.id === child.id).xp, 100);
   assert.equal(children.find((c) => c.id === child.id).coins, 50);
 });
+
+test("regra 12: virar o dia nao mantem tarefa recorrente marcada com status de ontem", async () => {
+  const dates = require("../src/util/dates");
+  const completionsRepo = require("../src/repositories/completions");
+  const child = childrenRepo.create(familyId, { name: "Teste12" });
+  const [category] = require("../src/repositories/categories").listByFamily(familyId);
+  const task = tasksRepo.create(familyId, { name: "Tarefa diaria", categoryId: category.id, xp: 5, coins: 1, requiresApproval: true });
+
+  const yesterday = dates.addDaysKey(dates.todayKey(), -1);
+  completionsRepo.create({ taskId: task.id, childId: child.id, date: yesterday, status: "pending" });
+
+  // a crianca, hoje, nao pode ver a tarefa de ontem como se ja estivesse feita/pendente
+  const { json: diaryToday } = await api(`/children/${child.id}/diary?days=0`);
+  assert.equal(diaryToday.find((d) => d.task_id === task.id), undefined);
+
+  // mas os pais continuam vendo o item de ontem na fila de aprovacao
+  const token = await login();
+  const { json: pending } = await api("/completions/pending", { token });
+  assert.ok(pending.some((c) => c.task_id === task.id && c.date === yesterday));
+});

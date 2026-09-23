@@ -156,8 +156,11 @@ export async function renderChildApp(root, ctx) {
   let bodyHtml;
   if (tab === "hoje") {
     const tasks = await api.tasksToday();
-    // anexa status de conclusao de hoje em cada tarefa (busca leve via diario do dia)
-    const diaryToday = await api.diary(child.id, 1).catch(() => []);
+    // anexa status de conclusao de hoje em cada tarefa (busca leve via diario do dia).
+    // days=0 = so hoje - com days=1 o intervalo incluia ontem tambem, e como a
+    // tarefa recorrente tem o mesmo id todo dia, ela casava com a conclusao de
+    // ontem quando ainda nao havia uma de hoje (mostrava "ja feita" errado).
+    const diaryToday = await api.diary(child.id, 0).catch(() => []);
     tasks.forEach((t) => {
       const c = diaryToday.find((d) => d.task_id === t.id);
       t._completion = c || null;

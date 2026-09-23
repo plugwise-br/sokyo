@@ -141,6 +141,8 @@ select{padding:9px 10px; border-radius:10px; border:1px solid var(--line); backg
 .btn[disabled]{opacity:.45; cursor:not-allowed}
 .btn-sm{padding:7px 11px; font-size:.76rem; border-radius:10px}
 
+.date-group-label{font-family:'Baloo 2'; font-weight:800; font-size:.82rem; color:var(--ink-dim); margin:14px 0 2px; text-transform:uppercase; letter-spacing:.02em}
+.date-group-label:first-child{margin-top:0}
 .pending-row{display:flex; align-items:center; gap:10px; padding:12px 4px; border-bottom:1px solid var(--line)}
 .pending-row:last-child{border-bottom:none}
 .icon-btn{width:38px;height:38px;border-radius:10px;border:none;font-size:16px;cursor:pointer;flex:none}

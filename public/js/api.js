@@ -41,7 +41,7 @@ export const api = {
   redeem: (childId, rewardId) => request(`/children/${childId}/rewards/${rewardId}/redeem`, { method: "POST" }),
   goals: (childId) => request(`/children/${childId}/goals`),
   achievements: (childId) => request(`/children/${childId}/achievements`),
-  diary: (childId, days) => request(`/children/${childId}/diary?days=${days || 14}`),
+  diary: (childId, days) => request(`/children/${childId}/diary?days=${days == null ? 14 : days}`),
   weeklyReport: (childId) => request(`/children/${childId}/report/weekly`),
 
   // auth

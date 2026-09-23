@@ -49,8 +49,11 @@ router.delete("/achievements/:id", requireParent, (req, res) => {
 });
 
 // Diario: historico de conclusoes de uma janela de dias (padrao 14).
+// days=0 e valido (so hoje) - por isso o parse nao pode usar "|| 14"
+// (0 || 14 vira 14 em JS, quebrando o caso "so hoje").
 router.get("/children/:childId/diary", (req, res) => {
-  const days = Math.min(60, parseInt(req.query.days, 10) || 14);
+  const parsed = parseInt(req.query.days, 10);
+  const days = Math.min(60, Number.isFinite(parsed) ? Math.max(0, parsed) : 14);
   const to = dates.todayKey();
   const from = dates.addDaysKey(to, -days);
   res.json(completionsRepo.listByChildInRange(req.params.childId, from, to));

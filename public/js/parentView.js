@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { esc, fmtBRL, TASK_TYPE_LABEL, REWARD_TYPE_LABEL } from "./format.js";
+import { esc, fmtBRL, TASK_TYPE_LABEL, REWARD_TYPE_LABEL, DOW, keyToLocalDate } from "./format.js";
 import { getBranding } from "./branding.js";
 
 const TABS = [["dashboard", "Painel"], ["tarefas", "Missões"], ["aprovacao", "Aprovação"], ["recompensas", "Recompensas"], ["conquistas", "Conquistas"], ["metas", "Metas"], ["mesada", "Mesada"]];
@@ -108,18 +108,36 @@ async function tabTarefas() {
   return html;
 }
 
+// Rotulo amigavel pra data de um grupo da fila de aprovacao (so exibicao -
+// a data em si sempre vem calculada pelo servidor).
+function dateGroupLabel(dateKey) {
+  const d = keyToLocalDate(dateKey);
+  const today = new Date();
+  const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  if (sameDay(d, today)) return "Hoje";
+  if (sameDay(d, yesterday)) return "Ontem";
+  return `${DOW[d.getDay()]}, ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 // ---------------- Aprovacao ----------------
 async function tabAprovacao() {
   const [completions, redemptions] = await Promise.all([api.pendingCompletions(), api.pendingRedemptions()]);
   let html = `<div class="card"><h2>Missões para validar</h2>`;
   if (completions.length === 0) html += `<div class="empty">Nada pendente agora. 🎉</div>`;
-  completions.forEach((c) => {
-    html += `<div class="pending-row">
-      <div class="task-icon">${c.task_icon}</div>
-      <div class="task-body"><div class="task-name">${esc(c.task_name)}</div><div class="muted">${c.date} · +${c.task_xp} XP · +${c.task_coins} moedas</div></div>
-      <button class="icon-btn ok" data-action="approve-completion" data-id="${c.id}">✓</button>
-      <button class="icon-btn no" data-action="reject-completion" data-id="${c.id}">✕</button>
-    </div>`;
+  // agrupa por data (mais recente primeiro) pra ficar claro o que e atrasado
+  const byDate = {};
+  completions.forEach((c) => { (byDate[c.date] = byDate[c.date] || []).push(c); });
+  Object.keys(byDate).sort().reverse().forEach((dateKey) => {
+    html += `<div class="date-group-label">${dateGroupLabel(dateKey)}</div>`;
+    byDate[dateKey].forEach((c) => {
+      html += `<div class="pending-row">
+        <div class="task-icon">${c.task_icon}</div>
+        <div class="task-body"><div class="task-name">${esc(c.task_name)}</div><div class="muted">+${c.task_xp} XP · +${c.task_coins} moedas</div></div>
+        <button class="icon-btn ok" data-action="approve-completion" data-id="${c.id}">✓</button>
+        <button class="icon-btn no" data-action="reject-completion" data-id="${c.id}">✕</button>
+      </div>`;
+    });
   });
   html += `</div><div class="card"><h2>Trocas de recompensa para validar</h2>`;
   if (redemptions.length === 0) html += `<div class="empty">Nada pendente agora. 🎉</div>`;
