@@ -7,6 +7,54 @@ const TABS = [["dashboard", "Painel"], ["tarefas", "Missões"], ["aprovacao", "A
 const AVATAR_OPTIONS = ["🦸", "🦸‍♀️", "🧑‍🚀", "🥷", "🧙", "🧜‍♀️", "🦹", "🧑‍🎤", "🐱", "🐶", "🐼", "🦊", "🦁", "🐯", "🐨", "🐸", "🦄", "🐲", "⚽", "🎮", "🚀", "🌟", "🎨", "📚"];
 let openAvatarPicker = null;
 
+// 1=Segunda ... 7=Domingo, mesmo indice que dates.weekdayIndex() usa no
+// servidor (e o que fica salvo em tasks.days_of_week).
+const WEEKDAY_LABELS = ["S", "T", "Q", "Q", "S", "S", "D"];
+const WEEKDAY_TITLES = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+
+// grupo de 7 pills (Seg..Dom) + "Todos os dias". dias=null/[] representa
+// "todo santo dia" (comportamento default de sempre, sem restricao).
+function daysOfWeekPickerHtml(idPrefix, days) {
+  const allDays = !days || days.length === 0;
+  let html = `<div class="dow-picker" data-dow-group="${idPrefix}">`;
+  html += `<button type="button" class="dow-pill ${allDays ? "active" : ""}" data-dow-all="1">Todos os dias</button>`;
+  html += `<div class="dow-days">`;
+  for (let d = 1; d <= 7; d++) {
+    const active = !allDays && days.indexOf(d) >= 0;
+    html += `<button type="button" class="dow-pill dow-day ${active ? "active" : ""}" data-dow-day="${d}" title="${WEEKDAY_TITLES[d - 1]}">${WEEKDAY_LABELS[d - 1]}</button>`;
+  }
+  html += `</div></div>`;
+  return html;
+}
+
+// le o estado atual de um grupo de pills direto do DOM (fonte da verdade
+// visual) e devolve o array de dias marcados, ou null se "todos os dias".
+function readDaysOfWeekPicker(groupEl) {
+  if (groupEl.querySelector('[data-dow-all]').classList.contains("active")) return null;
+  const days = [];
+  groupEl.querySelectorAll("[data-dow-day].active").forEach((btn) => days.push(parseInt(btn.dataset.dowDay, 10)));
+  return days.length ? days : null;
+}
+
+function bindDaysOfWeekPicker(groupEl, onChange) {
+  const allBtn = groupEl.querySelector("[data-dow-all]");
+  allBtn.addEventListener("click", () => {
+    allBtn.classList.add("active");
+    groupEl.querySelectorAll("[data-dow-day]").forEach((b) => b.classList.remove("active"));
+    onChange(readDaysOfWeekPicker(groupEl));
+  });
+  groupEl.querySelectorAll("[data-dow-day]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      allBtn.classList.remove("active");
+      btn.classList.toggle("active");
+      // ninguem selecionado = volta pra "todos os dias" (nunca fica uma
+      // missao sem nenhum dia marcado, o que a esconderia pra sempre)
+      if (!groupEl.querySelector("[data-dow-day].active")) allBtn.classList.add("active");
+      onChange(readDaysOfWeekPicker(groupEl));
+    });
+  });
+}
+
 function headerHtml(firstChildAvatar) {
   const b = getBranding();
   return `<div class="topbar">
@@ -74,14 +122,17 @@ async function tabTarefas() {
     html += `<div class="card"><div class="section-head" style="color:${cat.color}">${cat.icon} ${esc(cat.name)}</div>`;
     if (items.length === 0) html += `<div class="empty">Nenhuma missão nessa categoria.</div>`;
     items.forEach((t) => {
-      html += `<div class="list-item" data-task-row="${t.id}">
-        <input type="text" class="grow" data-field="name" value="${esc(t.name)}" style="min-width:150px">
-        <input type="number" class="sm" data-field="xp" value="${t.xp}" title="XP" min="0">
-        <input type="number" class="sm" data-field="coins" value="${t.coins}" title="Moedas" min="0">
-        <select data-field="type">${Object.entries(TASK_TYPE_LABEL).map(([v, l]) => `<option value="${v}" ${t.type === v ? "selected" : ""}>${l}</option>`).join("")}</select>
-        <label class="checkline"><input type="checkbox" data-field="requiresApproval" ${t.requires_approval ? "checked" : ""}> aprovação</label>
-        <label class="checkline"><input type="checkbox" data-field="active" ${t.active ? "checked" : ""}> ativa</label>
-        <button class="icon-btn no" data-action="delete-task" data-id="${t.id}" title="Excluir">✕</button>
+      html += `<div class="list-item-group" data-task-row="${t.id}">
+        <div class="list-item">
+          <input type="text" class="grow" data-field="name" value="${esc(t.name)}" style="min-width:150px">
+          <input type="number" class="sm" data-field="xp" value="${t.xp}" title="XP" min="0">
+          <input type="number" class="sm" data-field="coins" value="${t.coins}" title="Moedas" min="0">
+          <select data-field="type">${Object.entries(TASK_TYPE_LABEL).map(([v, l]) => `<option value="${v}" ${t.type === v ? "selected" : ""}>${l}</option>`).join("")}</select>
+          <label class="checkline"><input type="checkbox" data-field="requiresApproval" ${t.requires_approval ? "checked" : ""}> aprovação</label>
+          <label class="checkline"><input type="checkbox" data-field="active" ${t.active ? "checked" : ""}> ativa</label>
+          <button class="icon-btn no" data-action="delete-task" data-id="${t.id}" title="Excluir">✕</button>
+        </div>
+        ${daysOfWeekPickerHtml("task-" + t.id, t.days_of_week)}
       </div>`;
     });
     html += `</div>`;
@@ -102,6 +153,7 @@ async function tabTarefas() {
       <label>Subtarefas da missão épica (uma por linha)</label>
       <textarea id="nt-subtasks" placeholder="Guardar brinquedos&#10;Organizar livros&#10;Arrumar cama"></textarea>
     </div>
+    <div style="margin-top:10px"><label>Dias da semana</label>${daysOfWeekPickerHtml("nt-new", null)}</div>
     <label class="checkline" style="margin-top:10px"><input type="checkbox" id="nt-approval" checked> precisa de aprovação dos pais</label>
     <div style="margin-top:12px"><button class="btn btn-primary" id="nt-submit">Criar missão</button></div>
   </div>`;
@@ -380,11 +432,21 @@ function bindTasksTab(root, ctx, tab) {
         try { await api.updateTask(id, { [field]: value }); } catch (e) { ctx.toast("Não foi possível salvar."); ctx.setTab(tab); }
       });
     });
+    const dowGroup = row.querySelector("[data-dow-group]");
+    if (dowGroup) {
+      bindDaysOfWeekPicker(dowGroup, async (daysOfWeek) => {
+        try { await api.updateTask(id, { daysOfWeek }); ctx.toast("Salvo."); }
+        catch (e) { ctx.toast("Não foi possível salvar."); ctx.setTab(tab); }
+      });
+    }
   });
   root.querySelectorAll('[data-action="delete-task"]').forEach((btn) => btn.addEventListener("click", async () => {
     if (!confirm("Excluir esta missão? Essa ação não pode ser desfeita.")) return;
     try { await api.deleteTask(btn.dataset.id); ctx.setTab(tab); } catch (e) { ctx.toast("Não foi possível excluir."); }
   }));
+  const newDowGroup = document.querySelector('[data-dow-group="nt-new"]');
+  let newTaskDays = null;
+  if (newDowGroup) bindDaysOfWeekPicker(newDowGroup, (daysOfWeek) => { newTaskDays = daysOfWeek; });
   document.getElementById("nt-submit").addEventListener("click", async () => {
     const name = document.getElementById("nt-name").value.trim();
     if (!name) return;
@@ -393,7 +455,7 @@ function bindTasksTab(root, ctx, tab) {
     try {
       await api.createTask({
         name, xp: document.getElementById("nt-xp").value, coins: document.getElementById("nt-coins").value,
-        categoryId: document.getElementById("nt-category").value, type,
+        categoryId: document.getElementById("nt-category").value, type, daysOfWeek: newTaskDays,
         requiresApproval: document.getElementById("nt-approval").checked, subtasks
       });
       ctx.setTab(tab);

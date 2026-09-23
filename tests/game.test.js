@@ -223,3 +223,20 @@ test("regra 13: aprovar uma tarefa atrasada nao volta o streak no tempo", async 
   assert.equal(afterStreak.current, 1);
   assert.equal(afterStreak.last_active_date, beforeStreak.last_active_date);
 });
+
+test("regra 14: missao com dias da semana especificos so aparece nos dias marcados", async () => {
+  const dates = require("../src/util/dates");
+  const [category] = require("../src/repositories/categories").listByFamily(familyId);
+  const todayWeekday = dates.weekdayIndex(dates.todayKey());
+  const otherWeekday = todayWeekday === 1 ? 2 : 1; // qualquer dia diferente de hoje
+
+  const onlyToday = tasksRepo.create(familyId, { name: "So hoje", categoryId: category.id, xp: 1, coins: 0, daysOfWeek: [todayWeekday] });
+  const onlyOther = tasksRepo.create(familyId, { name: "So outro dia", categoryId: category.id, xp: 1, coins: 0, daysOfWeek: [otherWeekday] });
+  const everyDay = tasksRepo.create(familyId, { name: "Todo dia", categoryId: category.id, xp: 1, coins: 0 });
+
+  const { json: tasks } = await api("/tasks");
+  const ids = tasks.map((t) => t.id);
+  assert.ok(ids.includes(onlyToday.id), "tarefa marcada pro dia de hoje deve aparecer");
+  assert.ok(!ids.includes(onlyOther.id), "tarefa marcada so pra outro dia nao deve aparecer hoje");
+  assert.ok(ids.includes(everyDay.id), "tarefa sem dias marcados (todo dia) deve aparecer");
+});

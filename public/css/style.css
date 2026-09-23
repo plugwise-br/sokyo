@@ -158,6 +158,15 @@ select{padding:9px 10px; border-radius:10px; border:1px solid var(--line); backg
 .list-item .grow{flex:1 1 130px}
 .list-item .sm{width:60px; flex:none}
 
+.list-item-group{border-bottom:1px solid var(--line); padding-bottom:6px}
+.list-item-group:last-child{border-bottom:none}
+.list-item-group .list-item{border-bottom:none; padding-bottom:2px}
+.dow-picker{display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:0 4px 8px}
+.dow-days{display:flex; gap:4px}
+.dow-pill{border:1px solid var(--line); background:var(--surface-2); border-radius:999px; padding:4px 10px; font-weight:800; font-size:.72rem; cursor:pointer; color:var(--ink-dim)}
+.dow-pill.dow-day{width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; border-radius:50%; font-size:.74rem}
+.dow-pill.active{background:var(--primary); color:var(--primary-ink); border-color:var(--primary)}
+
 .child-select-row{display:flex; gap:8px; margin-bottom:4px; flex-wrap:wrap}
 .child-chip{border:1px solid var(--line); background:var(--surface-2); border-radius:999px; padding:6px 12px; font-weight:800; font-size:.78rem; cursor:pointer}
 .child-chip.active{background:var(--primary); color:var(--primary-ink); border-color:var(--primary)}
